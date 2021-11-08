@@ -55,6 +55,8 @@ public class DuckMove extends LinearOpMode {
 
         waitForStart();
 
+        int frame = 0;
+
         if (opModeIsActive()) {
             while (opModeIsActive()) {
 
@@ -78,8 +80,12 @@ public class DuckMove extends LinearOpMode {
                             telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
                             telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f", recognition.getLeft(), recognition.getTop());
                             telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f", recognition.getRight(), recognition.getBottom());
+
                             i++;
                         }
+
+                        telemetry.addData("frame: ", frame);
+                        frame++;
 
                         telemetry.update();
                     }
