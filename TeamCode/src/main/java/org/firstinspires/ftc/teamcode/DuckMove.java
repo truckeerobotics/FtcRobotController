@@ -62,7 +62,7 @@ public class DuckMove extends LinearOpMode {
 
 
                 if (tfod != null) {
-                    telemetry.addData("frame: ", frame);
+                    telemetry.addData("frame test: ", frame);
                     frame++;
 
                     List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
@@ -88,8 +88,10 @@ public class DuckMove extends LinearOpMode {
 
 
 
-                        telemetry.update();
+
                     }
+
+                    telemetry.update();
                 }
             }
         }
