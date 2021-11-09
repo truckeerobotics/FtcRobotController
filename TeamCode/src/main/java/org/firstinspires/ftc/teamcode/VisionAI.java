@@ -25,9 +25,13 @@ public class VisionAI extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        // Get the camera and open it up. Send to inCameraOpenSuccessResult or inCameraOpenErrorResult depending on if opening was successful
-        // This is an Asynchronous function call, so when it is done opening it will call the function depending on result.
+        // Get the camera and configure it
         OpenCvCamera camera = getExternalCamera();
+        camera.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
+        camera.setPipeline(pipeline);
+
+        // Open up the camera. Send to inCameraOpenSuccessResult or inCameraOpenErrorResult depending on if opening was successful
+        // This is an Asynchronous function call, so when it is done opening it will call the function depending on result.
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
         {
             @Override public void onOpened() { inCameraOpenSuccessResult(camera); }
@@ -50,11 +54,9 @@ public class VisionAI extends LinearOpMode {
         return OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
     }
 
-    // If the camera was opened up, then configure it, and then let pipeline deal with it.
+    // If the camera was opened up, then start streaming.
     public void inCameraOpenSuccessResult(OpenCvCamera camera) {
-        camera.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
         camera.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
-        camera.setPipeline(pipeline);
     }
 
     // If camera had an error when trying to be opened.
