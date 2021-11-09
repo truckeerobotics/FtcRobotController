@@ -7,7 +7,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -19,7 +22,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 public class VisionAI extends LinearOpMode {
 
-    EmptyPipeline pipeline = new EmptyPipeline();
+    ThresholdPipeline pipeline = new ThresholdPipeline();
 
     @Override
     public void runOpMode() {
@@ -71,8 +74,14 @@ public class VisionAI extends LinearOpMode {
 
 
 // Pipe :)
-class EmptyPipeline extends OpenCvPipeline
+class ThresholdPipeline extends OpenCvPipeline
 {
+    public Scalar lower = new Scalar(0, 0, 0);
+    public Scalar upper = new Scalar(255, 255, 255);
+
+    private Mat ycrcbMat       = new Mat();
+    private Mat binaryMat      = new Mat();
+    private Mat maskedInputMat = new Mat();
 
     Telemetry telemetry;
 
@@ -83,8 +92,19 @@ class EmptyPipeline extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
-        telemetry.addData("[Hello]", "World!");
+        telemetry.addData("[processFrame]", "processed");
         telemetry.update();
-        return input;
+
+        Imgproc.cvtColor(input, ycrcbMat, Imgproc.COLOR_RGB2YCrCb);
+        Core.inRange(ycrcbMat, lower, upper, binaryMat);
+        maskedInputMat.release();
+        Core.bitwise_and(input, input, maskedInputMat, binaryMat);
+
+        telemetry.addData("[>]", "Change these values in tuner menu");
+        telemetry.addData("[Lower Scalar]", lower);
+        telemetry.addData("[Upper Scalar]", upper);
+        telemetry.update();
+
+        return maskedInputMat;
     }
 }
