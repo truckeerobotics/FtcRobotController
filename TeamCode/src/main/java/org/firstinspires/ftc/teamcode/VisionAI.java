@@ -4,6 +4,8 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Mat;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -28,6 +30,7 @@ public class VisionAI extends LinearOpMode {
         // Get the camera and configure it
         OpenCvCamera camera = getExternalCamera();
         camera.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
+        pipeline.TelemetryPipeline(telemetry);
         camera.setPipeline(pipeline);
 
         // Open up the camera. Send to inCameraOpenSuccessResult or inCameraOpenErrorResult depending on if opening was successful
@@ -70,9 +73,18 @@ public class VisionAI extends LinearOpMode {
 // Pipe :)
 class EmptyPipeline extends OpenCvPipeline
 {
+
+    Telemetry telemetry;
+
+    public void TelemetryPipeline(Telemetry telemetry) {
+        this.telemetry = telemetry;
+    }
+
     @Override
     public Mat processFrame(Mat input)
     {
+        telemetry.addData("[Hello]", "World!");
+        telemetry.update();
         return input;
     }
 }
