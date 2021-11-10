@@ -92,17 +92,17 @@ class ThresholdPipeline extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
-        telemetry.addData("[processFrame]", "processed");
 
         Imgproc.cvtColor(input, ycrcbMat, Imgproc.COLOR_RGB2YCrCb);
         Core.inRange(ycrcbMat, lower, upper, binaryMat);
         maskedInputMat.release();
         Core.bitwise_and(input, input, maskedInputMat, binaryMat);
 
+        telemetry.addData("[processFrame]", "processed");
         telemetry.addData("[Lower Scalar]", lower);
         telemetry.addData("[Upper Scalar]", upper);
         telemetry.update();
 
-        return maskedInputMat;
+        return binaryMat;
     }
 }
