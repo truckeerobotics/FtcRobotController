@@ -32,7 +32,7 @@ public class VisionAI extends LinearOpMode {
 
         // Get the camera and configure it
         OpenCvCamera camera = getExternalCamera();
-        camera.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
+        //camera.setViewportRenderer(OpenCvCamera.ViewportRenderer.GPU_ACCELERATED);
         pipeline.TelemetryPipeline(telemetry);
         camera.setPipeline(pipeline);
 
@@ -77,7 +77,7 @@ public class VisionAI extends LinearOpMode {
 class ThresholdPipeline extends OpenCvPipeline
 {
     public Scalar lower = new Scalar(0, 0, 0);
-    public Scalar upper = new Scalar(255, 255, 255);
+    public Scalar upper = new Scalar(255, 255, 100);
 
     private Mat ycrcbMat       = new Mat();
     private Mat binaryMat      = new Mat();
@@ -93,14 +93,12 @@ class ThresholdPipeline extends OpenCvPipeline
     public Mat processFrame(Mat input)
     {
         telemetry.addData("[processFrame]", "processed");
-        telemetry.update();
 
         Imgproc.cvtColor(input, ycrcbMat, Imgproc.COLOR_RGB2YCrCb);
         Core.inRange(ycrcbMat, lower, upper, binaryMat);
         maskedInputMat.release();
         Core.bitwise_and(input, input, maskedInputMat, binaryMat);
 
-        telemetry.addData("[>]", "Change these values in tuner menu");
         telemetry.addData("[Lower Scalar]", lower);
         telemetry.addData("[Upper Scalar]", upper);
         telemetry.update();
