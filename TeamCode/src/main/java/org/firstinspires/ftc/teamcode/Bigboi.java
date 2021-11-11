@@ -13,8 +13,7 @@ public class Bigboi extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        // Declare our motors
-        // Make sure your ID's match your configuration
+        //Hardware map
         double timePass = 0;
         int intake = 0;
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
@@ -35,35 +34,16 @@ public class Bigboi extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            double y = gamepad1.left_stick_y; // Remember, this is reversed!
-            double x = -gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
+            double y = gamepad1.left_stick_y;
+            double x = -gamepad1.left_stick_x * 1.1; // 1.1 counters imperfect strafing
             double rx = -gamepad1.right_stick_x;
-
-            // Denominator is the largest motor power (absolute value) or 1
-            // This ensures all the powers mwh
-            //
-            // aintain the same ratio, but only when
-            // at least one is out of the range [-1, 1]
+            
+            //Wheel power calculations
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double frontLeftPower = (y + x + rx) / denominator;
             double backLeftPower = (y - x - rx) / denominator;
             double frontRightPower = (y - x + rx) / denominator;
             double backRightPower = (y + x - rx) / denominator;
-
-            motorFrontLeft.setPower(frontLeftPower);
-            motorBackLeft.setPower(backLeftPower);
-            motorFrontRight.setPower(frontRightPower);
-            motorBackRight.setPower(backRightPower);
-
-            telemetry.addData("frontLeft: ", frontLeftPower);
-            telemetry.addData("frontRight: ", frontRightPower);
-            telemetry.addData("backLeft: ", backLeftPower);
-            telemetry.addData("backRight: ", backRightPower);
-            telemetry.addData("A: ", gamepad1.a);
-            telemetry.addData("LB:", gamepad1.left_bumper);
-            telemetry.addData("RB:", gamepad1.right_bumper);
-            telemetry.update();
-
 
             if(gamepad1.x){
                 intake = 1;
@@ -72,11 +52,7 @@ public class Bigboi extends LinearOpMode {
             } else{
                 intake = 0;
             }
-
-            intakeRight.setPower(intake);
-            intakeLeft.setPower(intake);
-
-
+            
             if(gamepad1.left_bumper){
                 spin.setPower(1);
             }else if(gamepad1.right_bumper){
@@ -84,12 +60,25 @@ public class Bigboi extends LinearOpMode {
             }else{
                 spin.setPower(0);
             }
-
-            // if(gamepad1.a){
-            //    spin.setPower(1);
-            // }else{
-            //    spin.setPower(0);
-            // }
+            
+            //setting power
+            intakeRight.setPower(intake);
+            intakeLeft.setPower(intake);
+            motorFrontLeft.setPower(frontLeftPower);
+            motorBackLeft.setPower(backLeftPower);
+            motorFrontRight.setPower(frontRightPower);
+            motorBackRight.setPower(backRightPower);
+            
+            //control debugs
+            telemetry.addData("frontLeft: ", frontLeftPower);
+            telemetry.addData("frontRight: ", frontRightPower);
+            telemetry.addData("backLeft: ", backLeftPower);
+            telemetry.addData("backRight: ", backRightPower);
+            telemetry.addData("X: ", gamepad1.x);
+            telemetry.addData("B: ", gamepad1.b);
+            telemetry.addData("LB:", gamepad1.left_bumper);
+            telemetry.addData("RB:", gamepad1.right_bumper);
+            telemetry.update();
         }
     }
 }
