@@ -53,7 +53,7 @@ public class VisionAI extends LinearOpMode {
         // Create the Interpreter and throw an exception if anything goes wrong.
         Interpreter modelInterpreter = null;
         try {
-            modelInterpreter = createTensorflowModelinterpreter();
+            modelInterpreter = createTensorflowModelInterpreter();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -99,16 +99,24 @@ public class VisionAI extends LinearOpMode {
 
     }
 
-    // Pure pain and suffering! :D
-    // I'll try to get to adding comments to this someday.
-    public Interpreter createTensorflowModelinterpreter() throws IOException {
+    /// Pain:
+
+    // Get a model interpreter using the path of the model file.
+    public Interpreter createTensorflowModelInterpreter() throws IOException {
+        // Get an asset manager by using the context of the app (Basically android system integration), and then getting the assets.
         AssetManager assetManager = hardwareMap.appContext.getAssets();
+        // Gets an AssetFileDescriptor, which is essentially our way to get the place in memory where the file of that path is.
         AssetFileDescriptor fileDescriptor = assetManager.openFd(pathTensorflowLiteModel);
+        // This gets the raw bytes of the file, and puts it into this File stream.
         FileInputStream inputStream = new FileInputStream(fileDescriptor.getFileDescriptor());
+        // This is a file channel, which we can then read, write and map from.
         FileChannel fileChannel = inputStream.getChannel();
+        // Put the position of where in memory the file is, in longs (Longs are extremely big integers [64 bit integers])
         long startOffset = fileDescriptor.getStartOffset();
         long declaredLength = fileDescriptor.getDeclaredLength();
+        // This is a map of the file, which essentially allows you to access it's memory directly.
         MappedByteBuffer modelBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
+        // Create an Interpreter using this MappedByteBuffer, this is what we send out of the function, and what can be used for running the model.
         return new Interpreter(modelBuffer);
     }
 
