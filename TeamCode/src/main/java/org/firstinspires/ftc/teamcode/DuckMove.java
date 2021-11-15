@@ -1,3 +1,4 @@
+//WARNING: this script is no longer for use. only use it as a refrence!!!
 package org.firstinspires.ftc.teamcode;
 
 // importing many different libraries
