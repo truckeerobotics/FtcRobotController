@@ -12,7 +12,7 @@ public class BruteforceBlue extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    static final double FORWARD_SPEED = 0.5;
+    static final double FORWARD_SPEED = -0.5;
     static final double TURN_SPEED    = 0.4;
 
     public double[] calcPower(double y, double x, double rx){
@@ -44,21 +44,23 @@ public class BruteforceBlue extends LinearOpMode {
         if (isStopRequested()) return;
 
         double[] powers = {0,0,0,0};
-
-        // Step 1:  Drive backwords for 0.3 seconds
-        powers = calcPower(FORWARD_SPEED, 0, 0);
+        
+        // Step 1:  Strafe for 0.5 seconds
+        //WARNING: could stafe in wrong direction change forward_speed to a negitive if it does
+        powers = calcPower(0, FORWARD_SPEED, 0);
         motorFrontLeft.setPower(powers[0]);
         motorBackLeft.setPower(powers[1]);
         motorFrontRight.setPower(powers[2]);
         motorBackRight.setPower(powers[3]);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 0.3)) {
+        while (opModeIsActive() && (runtime.seconds() < 0.5)) {
             telemetry.addData("Path", "Leg 1: %2.5f S Elapsed", runtime.seconds());
             telemetry.update();
         }
-
-        // Step 2:  Strafe for 2.5 seconds
-        powers = calcPower(0, FORWARD_SPEED, 0);
+        
+        // Step 2:  Drive forwards for 2.3 seconds
+        //WARNING: may go backwords. if it does change forward_speed to -forward_speed
+        powers = calcPower(FORWARD_SPEED, 0, 0);
         motorFrontLeft.setPower(powers[0]);
         motorBackLeft.setPower(powers[1]);
         motorFrontRight.setPower(powers[2]);
@@ -68,12 +70,15 @@ public class BruteforceBlue extends LinearOpMode {
             telemetry.addData("Path", "Leg 2: %2.5f S Elapsed", runtime.seconds());
             telemetry.update();
         }
-
+        
+        //stop motors
         motorFrontLeft.setPower(0);
         motorBackLeft.setPower(0);
         motorFrontRight.setPower(0);
         motorBackRight.setPower(0);
-
+        
+        //spin wheel
+        //setpower is -1 so wheel moves in other direction
         spin.setPower(-1);
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 3)) {
@@ -81,14 +86,18 @@ public class BruteforceBlue extends LinearOpMode {
             telemetry.update();
         }
         spin.setPower(0);
-
+            
+        //0.5 second delay with no motors on
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 0.5)) {
             telemetry.addData("Path", "Leg 2: %2.5f S Elapsed", runtime.seconds());
             telemetry.update();
         }
-
-        powers = calcPower(FORWARD_SPEED, 0, 0);
+        
+        
+        //stafe for 1.5 seconds. (maybe get half inside box)
+        //WARNING: could stafe in wrong direction change forward_speed to a negitive if it does
+        powers = calcPower(0, FORWARD_SPEED, 0);
         motorFrontLeft.setPower(powers[0]);
         motorBackLeft.setPower(powers[1]);
         motorFrontRight.setPower(powers[2]);
@@ -104,7 +113,6 @@ public class BruteforceBlue extends LinearOpMode {
         motorBackLeft.setPower(0);
         motorFrontRight.setPower(0);
         motorBackRight.setPower(0);
-
 
     }
 }
