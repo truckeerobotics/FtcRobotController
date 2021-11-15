@@ -17,7 +17,7 @@ public class opMode extends LinearOpMode {
 
         while (opModeIsActive()) {
             telemetry.addData("Time: ", runtime.seconds());
-            telemetry.addData("Test: ", "hello world");
+            telemetry.addData("Test: ", "hello world!!!");
             telemetry.update();
         }
     }
