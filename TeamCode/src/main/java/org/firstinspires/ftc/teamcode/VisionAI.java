@@ -55,15 +55,16 @@ public class VisionAI extends LinearOpMode {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
         float[][] inputArray = new float[1][256];
         // Output
-        float[][] outputArray = new float[1][2];
+        float[][] outputArray = new float[1][3];
 
 
         modelInterpreter.run(inputArray, outputArray);
 
         telemetry.update();
-
 
 //        // Create the pipeline and give it access to debugging and the model
 //        pipeline = new TFlitePipeline(telemetry, modelInterpreter);
@@ -148,6 +149,11 @@ class TFlitePipeline extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
+        int buff[] = new int[(int)input.total() * input.channels()];
+        input.get(0, 0, buff);
+
+
+
         return input;
     }
 
