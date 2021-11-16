@@ -127,10 +127,10 @@ public class DriveWithEncoder extends LinearOpMode
 
         while (opModeIsActive() && motorFrontLeft.getCurrentPosition() > motorFrontLeft.getTargetPosition())
         {
-            telemetry.addData("encoder-fwd-front-left", motorFrontLeft.getCurrentPosition();
-            telemetry.addData("encoder-fwd-back-left", motorBackLeft.getCurrentPosition());
-            telemetry.addData("encoder-fwd-front-right", motorFrontRight.getCurrentPosition());
-            telemetry.addData("encoder-fwd-back-left", motorBackRight.getCurrentPosition());
+            telemetry.addData("encoder-back-front-left", motorFrontLeft.getCurrentPosition();
+            telemetry.addData("encoder-back-back-left", motorBackLeft.getCurrentPosition());
+            telemetry.addData("encoder-back-front-right", motorFrontRight.getCurrentPosition());
+            telemetry.addData("encoder-back-back-left", motorBackRight.getCurrentPosition());
             telemetry.update();
             idle();
         }
@@ -146,10 +146,10 @@ public class DriveWithEncoder extends LinearOpMode
 
         while (opModeIsActive() && getRuntime() < 5)
         {
-            telemetry.addData("encoder-fwd-front-left", motorFrontLeft.getCurrentPosition();
-            telemetry.addData("encoder-fwd-back-left", motorBackLeft.getCurrentPosition());
-            telemetry.addData("encoder-fwd-front-right", motorFrontRight.getCurrentPosition());
-            telemetry.addData("encoder-fwd-back-left", motorBackRight.getCurrentPosition());
+            telemetry.addData("encoder-back-front-left", motorFrontLeft.getCurrentPosition();
+            telemetry.addData("encoder-back-back-left", motorBackLeft.getCurrentPosition());
+            telemetry.addData("encoder-back-front-right", motorFrontRight.getCurrentPosition());
+            telemetry.addData("encoder-back-back-left", motorBackRight.getCurrentPosition());
             telemetry.update();
             idle();
         }
