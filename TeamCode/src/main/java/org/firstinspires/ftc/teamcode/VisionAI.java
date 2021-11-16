@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 // importing many different libraries
 
-
-
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 
@@ -24,8 +22,12 @@ import org.tensorflow.lite.Interpreter;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 
 // the beginning of the teleop mode
@@ -37,18 +39,14 @@ public class VisionAI extends LinearOpMode {
     final String pathTensorflowLiteModel = "test_model.tflite";
     TFlitePipeline pipeline;
 
-
-
-
     @Override
     public void runOpMode() {
 
         telemetry.addData("Status", "Initialized");
-        telemetry.update();
 
 
         // Get the camera and configure it
-        OpenCvCamera camera = getExternalCamera();
+//        OpenCvCamera camera = getExternalCamera();
 
         // Create the Interpreter and throw an exception if anything goes wrong.
         Interpreter modelInterpreter = null;
@@ -57,21 +55,30 @@ public class VisionAI extends LinearOpMode {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // Create the pipeline and give it access to debugging and the model
-        pipeline = new TFlitePipeline(telemetry, modelInterpreter);
-
-        // Give the camera the pipeline.
-        camera.setPipeline(pipeline);
+        float[][] inputArray = new float[1][256];
+        // Output
+        float[][] outputArray = new float[1][2];
 
 
-        // Open up the camera. Send to inCameraOpenSuccessResult or inCameraOpenErrorResult depending on if opening was successful
-        // This is an Asynchronous function call, so when it is done opening it will call the function depending on result.
-        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-        {
-            @Override public void onOpened() { inCameraOpenSuccessResult(camera); }
-            @Override public void onError(int errorCode) { inCameraOpenErrorResult(errorCode); }
-        });
+        modelInterpreter.run(inputArray, outputArray);
+
+        telemetry.update();
+
+
+//        // Create the pipeline and give it access to debugging and the model
+//        pipeline = new TFlitePipeline(telemetry, modelInterpreter);
+//
+//        // Give the camera the pipeline.
+//        camera.setPipeline(pipeline);
+//
+//
+//        // Open up the camera. Send to inCameraOpenSuccessResult or inCameraOpenErrorResult depending on if opening was successful
+//        // This is an Asynchronous function call, so when it is done opening it will call the function depending on result.
+//        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+//        {
+//            @Override public void onOpened() { inCameraOpenSuccessResult(camera); }
+//            @Override public void onError(int errorCode) { inCameraOpenErrorResult(errorCode); }
+//        });
 
         waitForStart();
 
@@ -117,7 +124,9 @@ public class VisionAI extends LinearOpMode {
         // This is a map of the file, which essentially allows you to access it's memory directly.
         MappedByteBuffer modelBuffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength);
         // Create an Interpreter using this MappedByteBuffer, this is what we send out of the function, and what can be used for running the model.
-        return new Interpreter(modelBuffer);
+        // noinspection deprecation - For whatever reason android studio thinks Interpreter is depricated, so just ignore that using this comment.
+        Interpreter interpreter = new Interpreter(modelBuffer);
+        return interpreter;
     }
 
 }
