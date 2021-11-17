@@ -80,6 +80,7 @@ public class Bigboi extends LinearOpMode {
 
 
 
+
             //setting power
             intakeRight.setPower(intake);
             intakeLeft.setPower(intake);
