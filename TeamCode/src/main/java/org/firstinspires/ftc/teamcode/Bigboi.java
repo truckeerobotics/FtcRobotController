@@ -24,6 +24,8 @@ public class Bigboi extends LinearOpMode {
         DcMotor intakeRight = hardwareMap.dcMotor.get("intakeRight");
         DcMotor spin = hardwareMap.dcMotor.get("spin");
 
+
+
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -78,6 +80,9 @@ public class Bigboi extends LinearOpMode {
             telemetry.addData("B: ", gamepad1.b);
             telemetry.addData("LB:", gamepad1.left_bumper);
             telemetry.addData("RB:", gamepad1.right_bumper);
+            telemetry.addData("frontLeftPosition", motorFrontLeft.getCurrentPosition());
+            telemetry.addData("frontRightPosition", motorFrontRight.getCurrentPosition());
+
             telemetry.update();
         }
     }
