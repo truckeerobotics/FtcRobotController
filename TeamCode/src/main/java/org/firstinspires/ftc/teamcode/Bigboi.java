@@ -24,7 +24,7 @@ public class Bigboi extends LinearOpMode {
         DcMotor intakeLeft = hardwareMap.dcMotor.get("intakeLeft");
         DcMotor intakeRight = hardwareMap.dcMotor.get("intakeRight");
         DcMotor spinMotor = hardwareMap.dcMotor.get("spin");
-        //DcMotor armMotor = hardwareMap.dcMotor.get("armMotor");
+        DcMotor armMotor = hardwareMap.dcMotor.get("armMotor");
         //Servo servo = hardwareMap.servo.get("servo");
 
 
@@ -68,7 +68,7 @@ public class Bigboi extends LinearOpMode {
                 spin = 0;
             }
 
-/*            if(gamepad1.dpad_up){
+            if(gamepad1.dpad_up){
                 armMotor.setPower(1);
             }
             if(gamepad1.dpad_down){
@@ -76,7 +76,7 @@ public class Bigboi extends LinearOpMode {
             }
             if (!gamepad1.dpad_down && gamepad1.dpad_up){
                 armMotor.setPower(0);
-            }*/
+            }
 
 
 
