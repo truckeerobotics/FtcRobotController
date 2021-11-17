@@ -1,21 +1,14 @@
-// autonomous program that drives bot forward a set distance, stops then
-// backs up to the starting point using encoders to measure the distance.
-
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name="Drive Encoder")
 //@Disabled
 public class DriveWithEncoder extends LinearOpMode
 {
-    DcMotor motorFrontLeft;
-    DcMotor motorBackLeft;
-    DcMotor motorFrontRight;
-    DcMotor motorBackRight;
-
     @Override
     public void runOpMode() throws InterruptedException
     {
@@ -93,7 +86,7 @@ public class DriveWithEncoder extends LinearOpMode
 
         while (opModeIsActive() && getRuntime() < 5)
         {
-            telemetry.addData("encoder-fwd-front-left", motorFrontLeft.getCurrentPosition();
+            telemetry.addData("encoder-fwd-front-left", motorFrontLeft.getCurrentPosition());
             telemetry.addData("encoder-fwd-back-left", motorBackLeft.getCurrentPosition());
             telemetry.addData("encoder-fwd-front-right", motorFrontRight.getCurrentPosition());
             telemetry.addData("encoder-fwd-back-left", motorBackRight.getCurrentPosition());
@@ -127,7 +120,7 @@ public class DriveWithEncoder extends LinearOpMode
 
         while (opModeIsActive() && motorFrontLeft.getCurrentPosition() > motorFrontLeft.getTargetPosition())
         {
-            telemetry.addData("encoder-back-front-left", motorFrontLeft.getCurrentPosition();
+            telemetry.addData("encoder-back-front-left", motorFrontLeft.getCurrentPosition());
             telemetry.addData("encoder-back-back-left", motorBackLeft.getCurrentPosition());
             telemetry.addData("encoder-back-front-right", motorFrontRight.getCurrentPosition());
             telemetry.addData("encoder-back-back-left", motorBackRight.getCurrentPosition());
@@ -146,7 +139,7 @@ public class DriveWithEncoder extends LinearOpMode
 
         while (opModeIsActive() && getRuntime() < 5)
         {
-            telemetry.addData("encoder-back-front-left", motorFrontLeft.getCurrentPosition();
+            telemetry.addData("encoder-back-front-left", motorFrontLeft.getCurrentPosition());
             telemetry.addData("encoder-back-back-left", motorBackLeft.getCurrentPosition());
             telemetry.addData("encoder-back-front-right", motorFrontRight.getCurrentPosition());
             telemetry.addData("encoder-back-back-left", motorBackRight.getCurrentPosition());

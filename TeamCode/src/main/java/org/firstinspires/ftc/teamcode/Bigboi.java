@@ -16,26 +16,31 @@ public class Bigboi extends LinearOpMode {
         //Hardware map
         double timePass = 0;
         int intake = 0;
+        int spin = 0;
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
         DcMotor intakeLeft = hardwareMap.dcMotor.get("intakeLeft");
         DcMotor intakeRight = hardwareMap.dcMotor.get("intakeRight");
-        DcMotor spin = hardwareMap.dcMotor.get("spin");
+        DcMotor spinMotor = hardwareMap.dcMotor.get("spin");
+        //DcMotor armMotor = hardwareMap.dcMotor.get("armMotor");
+        //Servo servo = hardwareMap.servo.get("servo");
 
 
 
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        spin.setDirection(DcMotorSimple.Direction.REVERSE);
+        spinMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
+            //servo.setPosition(0);
+
             double y = gamepad1.left_stick_y;
             double x = -gamepad1.left_stick_x * 1.1; // 1.1 counters imperfect strafing
             double rx = gamepad1.right_stick_x;
@@ -56,16 +61,29 @@ public class Bigboi extends LinearOpMode {
             }
             
             if(gamepad1.left_bumper){
-                spin.setPower(1);
+                spin = 1;
             }else if(gamepad1.right_bumper){
-                spin.setPower(-1);
+                spin = -1;
             }else{
-                spin.setPower(0);
+                spin = 0;
             }
-            
+
+/*            if(gamepad1.dpad_up){
+                armMotor.setPower(1);
+            }
+            if(gamepad1.dpad_down){
+                armMotor.setPower(-0.5);
+            }
+            if (!gamepad1.dpad_down && gamepad1.dpad_up){
+                armMotor.setPower(0);
+            }*/
+
+
+
             //setting power
             intakeRight.setPower(intake);
             intakeLeft.setPower(intake);
+            spinMotor.setPower(spin);
             motorFrontLeft.setPower(frontLeftPower);
             motorBackLeft.setPower(backLeftPower);
             motorFrontRight.setPower(frontRightPower);
