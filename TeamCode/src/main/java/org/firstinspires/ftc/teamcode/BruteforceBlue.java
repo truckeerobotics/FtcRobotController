@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous(name = "Blue Side - Bruteforce")
 public class BruteforceBlue extends LinearOpMode {
 
+
     private ElapsedTime runtime = new ElapsedTime();
 
     static final double FORWARD_SPEED = -0.5;

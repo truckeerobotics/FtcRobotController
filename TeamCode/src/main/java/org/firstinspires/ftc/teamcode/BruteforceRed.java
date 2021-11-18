@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 @Autonomous(name = "Red Side - Bruteforce")
+
 public class BruteforceRed extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
