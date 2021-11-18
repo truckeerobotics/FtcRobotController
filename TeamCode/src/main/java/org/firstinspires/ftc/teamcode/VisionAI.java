@@ -5,8 +5,8 @@ package org.firstinspires.ftc.teamcode;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -22,17 +22,13 @@ import org.tensorflow.lite.Interpreter;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
 
 
 // the beginning of the teleop mode
 
-@TeleOp(name = "The Pain Train", group = "Concept")
+@Autonomous(name = "The Pain Train", group = "Concept")
 
 public class VisionAI extends LinearOpMode {
 

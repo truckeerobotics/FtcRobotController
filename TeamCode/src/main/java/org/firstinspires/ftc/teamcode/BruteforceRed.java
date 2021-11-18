@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@TeleOp(name = "Bruteforce - red")
+@Autonomous(name = "Red Side - Bruteforce")
 public class BruteforceRed extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -26,6 +26,9 @@ public class BruteforceRed extends LinearOpMode {
         return powers;
     }
 
+
+
+
     @Override
     public void runOpMode() throws InterruptedException {
         //Hardware map
@@ -38,6 +41,9 @@ public class BruteforceRed extends LinearOpMode {
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
         spin.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        telemetry.addData("test", "test", runtime.seconds());
+
 
         waitForStart();
 
@@ -64,7 +70,7 @@ public class BruteforceRed extends LinearOpMode {
         motorFrontRight.setPower(powers[2]);
         motorBackRight.setPower(powers[3]);
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 2.3)) {
+        while (opModeIsActive() && (runtime.seconds() < 3)) {
             telemetry.addData("Path", "Leg 2: %2.5f S Elapsed", runtime.seconds());
             telemetry.update();
         }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 
 // importing many different libraries
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,7 +20,7 @@ import java.util.List;
 // the beginning of the teleop mode
 
 @TeleOp(name = "Duck ai", group = "Concept")
-
+@Disabled
 // defining objects that the camera can see
 
 public class DuckMove extends LinearOpMode {

@@ -4,9 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name = "robot")
+@TeleOp(name = "Main Drive")
 public class Bigboi extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -24,8 +25,8 @@ public class Bigboi extends LinearOpMode {
         DcMotor intakeLeft = hardwareMap.dcMotor.get("intakeLeft");
         DcMotor intakeRight = hardwareMap.dcMotor.get("intakeRight");
         DcMotor spinMotor = hardwareMap.dcMotor.get("spin");
-        DcMotor armMotor = hardwareMap.dcMotor.get("armMotor");
-        //Servo servo = hardwareMap.servo.get("servo");
+        //DcMotor armMotor = hardwareMap.dcMotor.get("armMotor");
+        Servo servo = hardwareMap.servo.get("servo");
 
 
 
@@ -39,10 +40,10 @@ public class Bigboi extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            //servo.setPosition(0);
+            servo.setPosition(0);
 
             double y = gamepad1.left_stick_y;
-            double x = -gamepad1.left_stick_x * 1.1; // 1.1 counters imperfect strafing
+            double x = -gamepad1.left_stick_x * 1; // 1.1 counters imperfect strafing
             double rx = gamepad1.right_stick_x;
             
             //Wheel power calculations
@@ -68,6 +69,7 @@ public class Bigboi extends LinearOpMode {
                 spin = 0;
             }
 
+/*
             if(gamepad1.dpad_up){
                 armMotor.setPower(1);
             }
@@ -77,6 +79,7 @@ public class Bigboi extends LinearOpMode {
             if (!gamepad1.dpad_down && gamepad1.dpad_up){
                 armMotor.setPower(0);
             }
+*/
 
 
 
