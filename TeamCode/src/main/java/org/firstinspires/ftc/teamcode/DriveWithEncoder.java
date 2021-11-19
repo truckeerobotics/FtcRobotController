@@ -60,7 +60,7 @@ public class DriveWithEncoder extends LinearOpMode
         motorFrontRight.setPower(0.25);
         motorBackRight.setPower(0.25);
 
-        // wait while opmode is active and left motor is busy running to position.
+        // wait while OpMode is active and left motor is busy running to position.
 
         while (opModeIsActive() && motorFrontLeft.isBusy())   //leftMotor.getCurrentPosition() < leftMotor.getTargetPosition())
         {
