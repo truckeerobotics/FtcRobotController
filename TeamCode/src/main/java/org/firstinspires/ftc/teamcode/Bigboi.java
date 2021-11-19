@@ -46,7 +46,7 @@ public class Bigboi extends LinearOpMode {
             double y = gamepad1.left_stick_y;
             double x = -gamepad1.left_stick_x * 1; // 1.1 counters imperfect strafing
             double rx = gamepad1.right_stick_x;
-            
+
             //Wheel power calculations
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
             double frontLeftPower = (y + x - rx) / denominator;
@@ -61,7 +61,7 @@ public class Bigboi extends LinearOpMode {
             } else{
                 intake = 0;
             }
-            
+
             if(gamepad1.left_bumper){
                 spin = 1;
             }else if(gamepad1.right_bumper){
@@ -93,7 +93,7 @@ public class Bigboi extends LinearOpMode {
             motorBackLeft.setPower(backLeftPower);
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
-            
+
             //control debugs
             telemetry.addData("frontLeft: ", frontLeftPower);
             telemetry.addData("frontRight: ", frontRightPower);
@@ -105,6 +105,8 @@ public class Bigboi extends LinearOpMode {
             telemetry.addData("RB:", gamepad1.right_bumper);
             telemetry.addData("frontLeftPosition", motorFrontLeft.getCurrentPosition());
             telemetry.addData("frontRightPosition", motorFrontRight.getCurrentPosition());
+            telemetry.addData("backLeftPosition: ", motorBackLeft.getCurrentPosition());
+            telemetry.addData("backRightPosition: ", motorBackRight.getCurrentPosition());
 
             telemetry.update();
         }
