@@ -19,6 +19,8 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.tensorflow.lite.Interpreter;
+import static org.opencv.imgproc.Imgproc.*;
+import static org.opencv.imgcodecs.Imgcodecs.imread;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -44,7 +46,7 @@ public class VisionAI extends LinearOpMode {
 
 
         // Get the camera and configure it
-//        OpenCvCamera camera = getExternalCamera();
+        OpenCvCamera camera = getExternalCamera();
 
         // Create the Interpreter and throw an exception if anything goes wrong.
         Interpreter modelInterpreter = null;
@@ -54,30 +56,22 @@ public class VisionAI extends LinearOpMode {
             e.printStackTrace();
         }
 
-
-        float[][] inputArray = new float[1][256];
-        // Output
-        float[][] outputArray = new float[1][3];
-
-
-        modelInterpreter.run(inputArray, outputArray);
-
         telemetry.update();
 
-//        // Create the pipeline and give it access to debugging and the model
-//        pipeline = new TFlitePipeline(telemetry, modelInterpreter);
-//
-//        // Give the camera the pipeline.
-//        camera.setPipeline(pipeline);
-//
-//
-//        // Open up the camera. Send to inCameraOpenSuccessResult or inCameraOpenErrorResult depending on if opening was successful
-//        // This is an Asynchronous function call, so when it is done opening it will call the function depending on result.
-//        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
-//        {
-//            @Override public void onOpened() { inCameraOpenSuccessResult(camera); }
-//            @Override public void onError(int errorCode) { inCameraOpenErrorResult(errorCode); }
-//        });
+        // Create the pipeline and give it access to debugging and the model
+        pipeline = new TFlitePipeline(telemetry, modelInterpreter);
+
+        // Give the camera the pipeline.
+        camera.setPipeline(pipeline);
+
+
+        // Open up the camera. Send to inCameraOpenSuccessResult or inCameraOpenErrorResult depending on if opening was successful
+        // This is an Asynchronous function call, so when it is done opening it will call the function depending on result.
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override public void onOpened() { inCameraOpenSuccessResult(camera); }
+            @Override public void onError(int errorCode) { inCameraOpenErrorResult(errorCode); }
+        });
 
         waitForStart();
 
@@ -147,10 +141,19 @@ class TFlitePipeline extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
+        Mat resizeimage = new Mat();
+        Size scaleSize = new Size(300,200);
+        resize(input, resizeimage, scaleSize , 0, 0, INTER_AREA);
+
         int buff[] = new int[(int)input.total() * input.channels()];
         input.get(0, 0, buff);
 
+        float[][] inputArray = new float[1][256];
+        // Output
+        float[][] outputArray = new float[1][3];
 
+
+        modelInterpreter.run(inputArray, outputArray);
 
         return input;
     }
