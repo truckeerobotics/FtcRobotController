@@ -34,6 +34,7 @@ import java.nio.channels.FileChannel;
 public class VisionAI extends LinearOpMode {
 
     final String pathTensorflowLiteModel = "test_model.tflite";
+    int level = 0;
     TFlitePipeline pipeline;
 
     @Override
