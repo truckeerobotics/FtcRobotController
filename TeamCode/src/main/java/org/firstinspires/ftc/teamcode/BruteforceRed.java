@@ -13,7 +13,7 @@ public class BruteforceRed extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
-    static final double FORWARD_SPEED = 0.5;
+    static final double FORWARD_SPEED = -0.5;
     static final double TURN_SPEED    = 0.4;
 
     public double[] calcPower(double y, double x, double rx){
@@ -53,7 +53,7 @@ public class BruteforceRed extends LinearOpMode {
         double[] powers = {0,0,0,0};
 
         // Step 1:  Drive backwords for 0.3 seconds
-        powers = calcPower(FORWARD_SPEED, 0, 0);
+        powers = calcPower(-FORWARD_SPEED, 0, 0);
         motorFrontLeft.setPower(powers[0]);
         motorBackLeft.setPower(powers[1]);
         motorFrontRight.setPower(powers[2]);
@@ -65,7 +65,7 @@ public class BruteforceRed extends LinearOpMode {
         }
 
         // Step 2:  Strafe for 2.5 seconds
-        powers = calcPower(0, -FORWARD_SPEED, 0);
+        powers = calcPower(0, FORWARD_SPEED, 0);
         motorFrontLeft.setPower(powers[0]);
         motorBackLeft.setPower(powers[1]);
         motorFrontRight.setPower(powers[2]);
@@ -95,7 +95,7 @@ public class BruteforceRed extends LinearOpMode {
             telemetry.update();
         }
 
-        powers = calcPower(FORWARD_SPEED, 0, 0);
+        powers = calcPower(-FORWARD_SPEED, 0, 0);
         motorFrontLeft.setPower(powers[0]);
         motorBackLeft.setPower(powers[1]);
         motorFrontRight.setPower(powers[2]);
