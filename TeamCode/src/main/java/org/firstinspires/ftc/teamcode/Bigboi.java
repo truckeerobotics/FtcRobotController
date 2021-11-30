@@ -16,7 +16,7 @@ public class Bigboi extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         //Hardware map
-        double timePass = 0;
+        double armPower = 0;
         int intake = 0;
         int spin = 0;
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
@@ -26,7 +26,7 @@ public class Bigboi extends LinearOpMode {
         DcMotor intakeLeft = hardwareMap.dcMotor.get("intakeLeft");
         DcMotor intakeRight = hardwareMap.dcMotor.get("intakeRight");
         DcMotor spinMotor = hardwareMap.dcMotor.get("spin");
-        //DcMotor armMotor = hardwareMap.dcMotor.get("armMotor");
+        DcMotor armMotor = hardwareMap.dcMotor.get("armMotor");
         Servo servo = hardwareMap.servo.get("servo");
 
 
@@ -35,6 +35,7 @@ public class Bigboi extends LinearOpMode {
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
         spinMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        armMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
 
@@ -54,14 +55,6 @@ public class Bigboi extends LinearOpMode {
             double frontRightPower = (y - x + rx) / denominator;
             double backRightPower = (y + x + rx) / denominator;
 
-            if(gamepad1.x){
-                intake = 1;
-            } else if(gamepad1.b){
-                intake = -1;
-            } else{
-                intake = 0;
-            }
-
             if(gamepad1.left_bumper){
                 spin = 1;
             }else if(gamepad1.right_bumper){
@@ -70,17 +63,22 @@ public class Bigboi extends LinearOpMode {
                 spin = 0;
             }
 
-/*
-            if(gamepad1.dpad_up){
-                armMotor.setPower(1);
+            if(gamepad2.x){
+                intake = 1;
+            } else if(gamepad2.b){
+                intake = -1;
+            } else{
+                intake = 0;
             }
-            if(gamepad1.dpad_down){
-                armMotor.setPower(-0.5);
+
+            if(gamepad2.dpad_up){
+                armMotor.setPower(0.5);
             }
-            if (!gamepad1.dpad_down && gamepad1.dpad_up){
+            if(gamepad2.dpad_down){
+                armMotor.setPower(-0.3);
+            }else{
                 armMotor.setPower(0);
             }
-*/
 
 
 

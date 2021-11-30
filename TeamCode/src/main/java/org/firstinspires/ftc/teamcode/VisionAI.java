@@ -2,6 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 // importing many different libraries
 
+import static org.opencv.imgproc.Imgproc.INTER_AREA;
+import static org.opencv.imgproc.Imgproc.resize;
+
 import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 
@@ -13,14 +16,13 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.tensorflow.lite.Interpreter;
-import static org.opencv.imgproc.Imgproc.*;
-import static org.opencv.imgcodecs.Imgcodecs.imread;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -153,7 +155,9 @@ class TFlitePipeline extends OpenCvPipeline
         float[][] outputArray = new float[1][3];
 
 
+/*
         modelInterpreter.run(inputArray, outputArray);
+*/
 
         return input;
     }

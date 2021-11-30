@@ -16,28 +16,29 @@ public class BruteforceRed extends LinearOpMode {
     static final double FORWARD_SPEED = 0.5;
     static final double TURN_SPEED    = 0.4;
 
-    public double[] calcPower(double y, double x, double rx){
+    DcMotor motorFrontLeft = null;
+    DcMotor motorBackLeft = null;
+    DcMotor motorFrontRight = null;
+    DcMotor motorBackRight = null;
+    DcMotor spin = null;
+
+    public void calcPower(double y, double x, double rx){
         //Wheel power calculations
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        double frontLeftPower = (y + x - rx) / denominator;
-        double backLeftPower = (y - x - rx) / denominator;
-        double frontRightPower = (y - x + rx) / denominator;
-        double backRightPower = (y + x + rx) / denominator;
-        double[] powers={frontLeftPower,backLeftPower,frontRightPower,backRightPower};
-        return powers;
+        motorFrontLeft.setPower((y + x - rx) / denominator);
+        motorBackLeft.setPower((y - x - rx) / denominator);
+        motorFrontRight.setPower((y - x + rx) / denominator);
+        motorBackRight.setPower((y + x + rx) / denominator);
     }
-
-
-
 
     @Override
     public void runOpMode() throws InterruptedException {
         //Hardware map
-        DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
-        DcMotor motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
-        DcMotor motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
-        DcMotor motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
-        DcMotor spin = hardwareMap.dcMotor.get("spin");
+        motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
+        motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
+        motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
+        motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
+        spin = hardwareMap.dcMotor.get("spin");
 
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -50,14 +51,8 @@ public class BruteforceRed extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        double[] powers = {0,0,0,0};
-
         // Step 1:  Drive backwords for 0.3 seconds
-        powers = calcPower(FORWARD_SPEED, 0, 0);
-        motorFrontLeft.setPower(powers[0]);
-        motorBackLeft.setPower(powers[1]);
-        motorFrontRight.setPower(powers[2]);
-        motorBackRight.setPower(powers[3]);
+        calcPower(FORWARD_SPEED, 0, 0);
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 0.3)) {
             telemetry.addData("Path", "Leg 1: %2.5f S Elapsed", runtime.seconds());
@@ -65,21 +60,14 @@ public class BruteforceRed extends LinearOpMode {
         }
 
         // Step 2:  Strafe for 2.5 seconds
-        powers = calcPower(0, -FORWARD_SPEED, 0);
-        motorFrontLeft.setPower(powers[0]);
-        motorBackLeft.setPower(powers[1]);
-        motorFrontRight.setPower(powers[2]);
-        motorBackRight.setPower(powers[3]);
+        calcPower(0, -FORWARD_SPEED, 0);
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 3)) {
             telemetry.addData("Path", "Leg 2: %2.5f S Elapsed", runtime.seconds());
             telemetry.update();
         }
+        calcPower(0, 0, 0);
 
-        motorFrontLeft.setPower(0);
-        motorBackLeft.setPower(0);
-        motorFrontRight.setPower(0);
-        motorBackRight.setPower(0);
 
         spin.setPower(1);
         runtime.reset();
@@ -95,11 +83,7 @@ public class BruteforceRed extends LinearOpMode {
             telemetry.update();
         }
 
-        powers = calcPower(FORWARD_SPEED, 0, 0);
-        motorFrontLeft.setPower(powers[0]);
-        motorBackLeft.setPower(powers[1]);
-        motorFrontRight.setPower(powers[2]);
-        motorBackRight.setPower(powers[3]);
+        calcPower(FORWARD_SPEED, 0, 0);
 
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 1.5)) {
@@ -107,11 +91,6 @@ public class BruteforceRed extends LinearOpMode {
             telemetry.update();
         }
 
-        motorFrontLeft.setPower(0);
-        motorBackLeft.setPower(0);
-        motorFrontRight.setPower(0);
-        motorBackRight.setPower(0);
-
-
+        calcPower(0, 0, 0);
     }
 }
