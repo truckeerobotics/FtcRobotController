@@ -13,11 +13,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -79,7 +76,7 @@ public class VisionAI extends LinearOpMode {
 
         if (opModeIsActive()) {
             while (opModeIsActive()) {
-
+                telemetry.update();
             }
         }
     }
@@ -145,18 +142,24 @@ class TFlitePipeline extends OpenCvPipeline
     {
         Mat resizedimage = new Mat();
         Size scaleSize = new Size(1280,853);
+        telemetry.addData("Debug ", "resize");
+
         resize(input, resizedimage, scaleSize , 0, 0, INTER_AREA);
+
+        telemetry.addData("Debug ", "buffer");
 
         int buff[] = new int[(int)resizedimage.total() * resizedimage.channels()];
         resizedimage.get(0, 0, buff);
 
-        float[][] inputArray = new float[1][256];
+        //float[][] inputArray = new float[1][256];
         // Output
-        float[][] outputArray = new float[1][3];
+        //float[][] outputArray = new float[1][3];
 
-        interpreter.run(inputArray, outputArray);
+        //telemetry.addData("Debug ", "Run");
 
-        telemetry.addData("Output Of Neural: ", outputArray);
+        //interpreter.run(inputArray, outputArray);
+
+        //telemetry.addData("Output Of Neural: ", outputArray);
 
 
         return input;
