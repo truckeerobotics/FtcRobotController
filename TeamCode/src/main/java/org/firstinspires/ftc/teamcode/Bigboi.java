@@ -164,7 +164,7 @@ public class Bigboi extends LinearOpMode {
 
 
             //setting power
-            armRotation.setPosition(wristPower)
+            armRotation.setPosition(wristPower);
             armMovement.setPosition(armPower);
             intakeRight.setPower(intake);
             intakeLeft.setPower(intake);
