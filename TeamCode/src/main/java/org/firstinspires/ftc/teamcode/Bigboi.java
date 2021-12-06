@@ -7,8 +7,34 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import java.util.HashMap;
+
 @TeleOp(name = "Main Drive")
 public class Bigboi extends LinearOpMode {
+
+    boolean lastTick = false;
+
+    boolean onPush(boolean button, String buttonName){
+        HashMap<String, Boolean> map=new HashMap<String, Boolean>();
+        map.put("controller1ButtonX", false);
+        map.put("controller2ButtonX", false);
+        map.put("controller1ButtonB", false);
+        map.put("controller2ButtonB", false);
+        for (HashMap.Entry<String, Boolean> entry : map.entrySet()) {
+            String key = entry.getKey();
+            Boolean value = entry.getValue();
+            if(key == buttonName){
+                if(button && !value){
+                    map.put(key, button);
+                    return true;
+                }else{
+                    map.put(key, button);
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
 
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -16,6 +42,7 @@ public class Bigboi extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         //Hardware map
+        boolean spinBool = false;
         double armPower = 0;
         int intake = 0;
         int spin = 0;
@@ -63,13 +90,35 @@ public class Bigboi extends LinearOpMode {
                 spin = 0;
             }
 
-            if(gamepad2.x){
+            if(onPush(gamepad2.x, "controller2ButtonX")) {
+                if (intake != 1) {
+                    intake = 1;
+                } else {
+                    intake = 0;
+                }
+            }
+
+            if(onPush(gamepad2.b, "controller2ButtonB")) {
+                if (intake != -1) {
+                    intake = -1;
+                } else {
+                    intake = 0;
+                }
+            }
+
+            if(spinBool){
+                spinMotor.setPower(1);
+            }else{
+                spinMotor.setPower(0);
+            }
+
+/*            if(gamepad2.x){
                 intake = 1;
             } else if(gamepad2.b){
                 intake = -1;
-            } else{
+            }else{
                 intake = 0;
-            }
+            }*/
 
             if(gamepad2.dpad_up){
                 armMotor.setPower(0.5);
@@ -79,9 +128,6 @@ public class Bigboi extends LinearOpMode {
             }else{
                 armMotor.setPower(0);
             }
-
-
-
 
             //setting power
             intakeRight.setPower(intake);
@@ -97,14 +143,11 @@ public class Bigboi extends LinearOpMode {
             telemetry.addData("frontRight: ", frontRightPower);
             telemetry.addData("backLeft: ", backLeftPower);
             telemetry.addData("backRight: ", backRightPower);
-            telemetry.addData("X: ", gamepad1.x);
-            telemetry.addData("B: ", gamepad1.b);
+            telemetry.addData("X: ", gamepad2.x);
+            telemetry.addData("B: ", gamepad2.b);
             telemetry.addData("LB:", gamepad1.left_bumper);
             telemetry.addData("RB:", gamepad1.right_bumper);
-            telemetry.addData("frontLeftPosition", motorFrontLeft.getCurrentPosition());
-            telemetry.addData("frontRightPosition", motorFrontRight.getCurrentPosition());
-            telemetry.addData("backLeftPosition: ", motorBackLeft.getCurrentPosition());
-            telemetry.addData("backRightPosition: ", motorBackRight.getCurrentPosition());
+            telemetry.addData("spinbool: ", spinBool);
 
             telemetry.update();
         }
