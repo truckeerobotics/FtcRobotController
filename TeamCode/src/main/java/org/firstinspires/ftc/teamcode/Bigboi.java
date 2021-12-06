@@ -54,7 +54,8 @@ public class Bigboi extends LinearOpMode {
         DcMotor intakeRight = hardwareMap.dcMotor.get("intakeRight");
         DcMotor spinMotor = hardwareMap.dcMotor.get("spin");
         DcMotor armMotor = hardwareMap.dcMotor.get("armMotor");
-        Servo servo = hardwareMap.servo.get("servo");
+        Servo armMovement = hardwareMap.servo.get("armMovement");
+        Servo armRotation = hardwareMap.servo.get("armRotation");
 
 
 
@@ -69,7 +70,8 @@ public class Bigboi extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            servo.setPosition(0);
+            armMovement.setPosition(-90);
+            armRotation.setPosition(0);
 
             double y = gamepad1.left_stick_y;
             double x = -gamepad1.left_stick_x * 1; // 1.1 counters imperfect strafing
