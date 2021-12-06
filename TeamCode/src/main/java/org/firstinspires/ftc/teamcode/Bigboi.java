@@ -14,12 +14,9 @@ public class Bigboi extends LinearOpMode {
 
     boolean lastTick = false;
 
+    HashMap<String, Boolean> map=new HashMap<String, Boolean>();
+
     boolean onPush(boolean button, String buttonName){
-        HashMap<String, Boolean> map=new HashMap<String, Boolean>();
-        map.put("controller1ButtonX", false);
-        map.put("controller2ButtonX", false);
-        map.put("controller1ButtonB", false);
-        map.put("controller2ButtonB", false);
         for (HashMap.Entry<String, Boolean> entry : map.entrySet()) {
             String key = entry.getKey();
             Boolean value = entry.getValue();
@@ -41,9 +38,13 @@ public class Bigboi extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        map.put("controller1ButtonX", false);
+        map.put("controller2ButtonX", false);
+        map.put("controller1ButtonB", false);
+        map.put("controller2ButtonB", false);
         //Hardware map
         boolean spinBool = false;
-        double armPower = 0;
+        double armPower = 0.68;
         int intake = 0;
         int spin = 0;
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
@@ -70,8 +71,10 @@ public class Bigboi extends LinearOpMode {
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            armMovement.setPosition(-90);
-            armRotation.setPosition(0);
+
+
+
+
 
             double y = gamepad1.left_stick_y;
             double x = -gamepad1.left_stick_x * 1; // 1.1 counters imperfect strafing
@@ -131,7 +134,24 @@ public class Bigboi extends LinearOpMode {
                 armMotor.setPower(0);
             }
 
+            if(gamepad2.y){
+                armMovement.setPosition(0.65);
+            }
+
+            if(armPower < 1 && gamepad2.left_stick_y > 0) {
+                armPower += gamepad2.left_stick_y / 500;
+            }
+
+            if(armPower > 0.1 && gamepad2.left_stick_y < 0){
+                armPower += gamepad2.left_stick_y / 500;
+            }
+
+            telemetry.addData("armpower: ", armMovement.getPosition());
+
+
             //setting power
+
+            armMovement.setPosition(armPower);
             intakeRight.setPower(intake);
             intakeLeft.setPower(intake);
             spinMotor.setPower(spin);
