@@ -45,6 +45,7 @@ public class Bigboi extends LinearOpMode {
         //Hardware map
         boolean spinBool = false;
         double armPower = 0.68;
+        double wristPower = 0;
         int intake = 0;
         int spin = 0;
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
@@ -145,12 +146,25 @@ public class Bigboi extends LinearOpMode {
             if(armPower > 0.1 && gamepad2.left_stick_y < 0){
                 armPower += gamepad2.left_stick_y / 500;
             }
+            
+            
+            if(wristPower < 1 && gamepad2.right_stick_y > 0) {
+                wristPower += gamepad2.right_stick_y / 500;
+            }
 
-            telemetry.addData("armpower: ", armMovement.getPosition());
+            if(wristPower > 0.1 && gamepad2.right_stick_y < 0){
+                wristPower += gamepad2.right_stick_y / 500;
+            }
+            
+            
+
+            telemetry.addData("arm pos: ", armMovement.getPosition());
+            telemetry.addData("wrist pos: : ", armRotation.getPosition());
+
 
 
             //setting power
-
+            armRotation.setPosition(wristPower);
             armMovement.setPosition(armPower);
             intakeRight.setPower(intake);
             intakeLeft.setPower(intake);
