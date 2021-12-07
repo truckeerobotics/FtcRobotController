@@ -147,15 +147,27 @@ class TFlitePipeline extends OpenCvPipeline
         Size scaleSize = new Size(1280,853);
         resize(input, resizedimage, scaleSize , 0, 0, INTER_AREA);
 
-        int buff[] = new int[(int)resizedimage.total() * resizedimage.channels()];
-        resizedimage.get(0, 0, buff);
+        // Extremely slow, WORST case option.
+        float[][][] imagePixels = new float[resizedimage.height()][][];
+        for(int i = 0; i < resizedimage.height(); i++) {
+            float[][] imagePixelsRow = new float[resizedimage.width()][];
+            for(int j = 0; j < resizedimage.width(); j++) {
+                double[] pixel = resizedimage.get(i, j);
+                imagePixelsRow[j] = new float[]{(float)pixel[0], (float)pixel[1], (float)pixel[2]};
+            }
+            imagePixels[i] = imagePixelsRow;
+        }
 
-        float[][] inputArray = new float[1][256];
+        float[][][][] inputArray = new float[][][][]{imagePixels};
         // Output
         float[][] outputArray = new float[1][3];
 
         interpreter.run(inputArray, outputArray);
 
+        telemetry.addData("Shape0: ", inputArray.length);
+        telemetry.addData("Shape1: ", inputArray[0].length);
+        telemetry.addData("Shape2: ", inputArray[0][0].length);
+        telemetry.addData("Shape3: ", inputArray[0][0][0].length);
         telemetry.addData("Output Of Neural: ", outputArray);
 
 
