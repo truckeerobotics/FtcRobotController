@@ -146,7 +146,7 @@ class TFlitePipeline extends OpenCvPipeline
         Size scaleSize = new Size(1280,853);
         resize(input, resizedimage, scaleSize , 0, 0, INTER_AREA);
 
-        MatOfFloat resizedFloatImage = new MatOfFloat(resizedimage);
+        MatOfFloat resizedFloatImage = new MatOfFloat(input);
 
         // Extremely slow, WORST case option.
         float[] resizedFloatImageArray = resizedFloatImage.toArray();
@@ -167,7 +167,7 @@ class TFlitePipeline extends OpenCvPipeline
 
 
 
-        interpreter.run(inputArray, outputArray);
+        //interpreter.run(inputArray, outputArray);
 
         telemetry.addData("Shape0: ", inputArray.length);
         telemetry.addData("Shape1: ", inputArray[0].length);
