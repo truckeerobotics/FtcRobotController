@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfFloat;
 import org.opencv.core.Size;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -145,15 +146,17 @@ class TFlitePipeline extends OpenCvPipeline
         Size scaleSize = new Size(1280,853);
         resize(input, resizedimage, scaleSize , 0, 0, INTER_AREA);
 
-
+        MatOfFloat resizedFloatImage = new MatOfFloat(resizedimage);
 
         // Extremely slow, WORST case option.
+        float[] resizedFloatImageArray = resizedFloatImage.toArray();
+        int index = 0;
         float[][][] imagePixels = new float[resizedimage.height()][][];
         for(int i = 0; i < resizedimage.height(); i++) {
             float[][] imagePixelsRow = new float[resizedimage.width()][];
             for(int j = 0; j < resizedimage.width(); j++) {
-                double[] pixel = resizedimage.get(i, j);
-                imagePixelsRow[j] = new float[]{(float)pixel[0], (float)pixel[1], (float)pixel[2]};
+                imagePixelsRow[j] = new float[] {resizedFloatImageArray[index], resizedFloatImageArray[index+1],resizedFloatImageArray[index+2]};
+                index += 3;
             }
             imagePixels[i] = imagePixelsRow;
         }
@@ -164,17 +167,19 @@ class TFlitePipeline extends OpenCvPipeline
 
 
 
-        //interpreter.run(inputArray, outputArray);
-        String exists = "false";
-        if ((this.interpreter != null)) {
-            exists = "true";
-        }
+        interpreter.run(inputArray, outputArray);
 
         telemetry.addData("Shape0: ", inputArray.length);
         telemetry.addData("Shape1: ", inputArray[0].length);
         telemetry.addData("Shape2: ", inputArray[0][0].length);
         telemetry.addData("Shape3: ", inputArray[0][0][0].length);
-        telemetry.addData("interpreter: ", exists);
+
+        telemetry.addData("Output1: ", outputArray[0]);
+        telemetry.addData("Output2: ", outputArray[1]);
+        telemetry.addData("Output3: ", outputArray[2]);
+
+
+
 
         telemetry.update();
 
