@@ -13,11 +13,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -37,7 +34,7 @@ import java.nio.channels.FileChannel;
 
 public class VisionAI extends LinearOpMode {
 
-    final String pathTensorflowLiteModel = "test_model.tflite";
+    final String pathTensorflowLiteModel = "duck_level_model.tflite";
     int level = 0;
     TFlitePipeline pipeline;
 
@@ -53,8 +50,9 @@ public class VisionAI extends LinearOpMode {
         // Create the Interpreter and throw an exception if anything goes wrong.
         Interpreter modelInterpreter = null;
         try {
-            modelInterpreter = createTensorflowModelInterpreter();
+            modelInterpreter = createTensorflowModelInterpreter(telemetry);
         } catch (IOException e) {
+            telemetry.addData("Error", "Failed creating Interpreter, see LogCat");
             e.printStackTrace();
         }
 
@@ -104,7 +102,7 @@ public class VisionAI extends LinearOpMode {
     /// Pain:
 
     // Get a model interpreter using the path of the model file.
-    public Interpreter createTensorflowModelInterpreter() throws IOException {
+    public Interpreter createTensorflowModelInterpreter(Telemetry telemetry) throws IOException {
         // Get an asset manager by using the context of the app (Basically android system integration), and then getting the assets.
         AssetManager assetManager = hardwareMap.appContext.getAssets();
         // Gets an AssetFileDescriptor, which is essentially our way to get the place in memory where the file of that path is.
@@ -147,6 +145,8 @@ class TFlitePipeline extends OpenCvPipeline
         Size scaleSize = new Size(1280,853);
         resize(input, resizedimage, scaleSize , 0, 0, INTER_AREA);
 
+
+
         // Extremely slow, WORST case option.
         float[][][] imagePixels = new float[resizedimage.height()][][];
         for(int i = 0; i < resizedimage.height(); i++) {
@@ -162,13 +162,21 @@ class TFlitePipeline extends OpenCvPipeline
         // Output
         float[][] outputArray = new float[1][3];
 
-        interpreter.run(inputArray, outputArray);
+
+
+        //interpreter.run(inputArray, outputArray);
+        String exists = "false";
+        if ((this.interpreter != null)) {
+            exists = "true";
+        }
 
         telemetry.addData("Shape0: ", inputArray.length);
         telemetry.addData("Shape1: ", inputArray[0].length);
         telemetry.addData("Shape2: ", inputArray[0][0].length);
         telemetry.addData("Shape3: ", inputArray[0][0][0].length);
-        telemetry.addData("Output Of Neural: ", outputArray);
+        telemetry.addData("interpreter: ", exists);
+
+        telemetry.update();
 
 
         return input;

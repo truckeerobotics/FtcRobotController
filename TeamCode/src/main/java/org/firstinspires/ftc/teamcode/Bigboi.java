@@ -143,7 +143,7 @@ public class Bigboi extends LinearOpMode {
                 armPower += gamepad2.left_stick_y / 500;
             }
 
-            if(armPower > 0.1 && gamepad2.left_stick_y < 0){
+            if(armPower > 0 && gamepad2.left_stick_y < 0){
                 armPower += gamepad2.left_stick_y / 500;
             }
             
@@ -152,7 +152,7 @@ public class Bigboi extends LinearOpMode {
                 wristPower += gamepad2.right_stick_y / 500;
             }
 
-            if(wristPower > 0.1 && gamepad2.right_stick_y < 0){
+            if(wristPower > 0 && gamepad2.right_stick_y < 0){
                 wristPower += gamepad2.right_stick_y / 500;
             }
             
