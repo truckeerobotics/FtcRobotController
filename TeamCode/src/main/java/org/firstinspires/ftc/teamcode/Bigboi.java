@@ -11,16 +11,20 @@ import java.util.HashMap;
 
 @TeleOp(name = "Main Drive")
 public class Bigboi extends LinearOpMode {
-
-    boolean lastTick = false;
-
+    
+    //Define togglebind hashmap
     HashMap<String, Boolean> map=new HashMap<String, Boolean>();
 
+    //onpush function
     boolean onPush(boolean button, String buttonName){
+        //loop though toggle hashmap
         for (HashMap.Entry<String, Boolean> entry : map.entrySet()) {
+            //save the key and value to varibles
             String key = entry.getKey();
             Boolean value = entry.getValue();
+            //check if the key is the value passed into the function
             if(key == buttonName){
+                //if it is and the last tick was a diffrent value we set it to true, thus toggleing the boolean
                 if(button && !value){
                     map.put(key, button);
                     return true;
@@ -38,16 +42,19 @@ public class Bigboi extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        //Control toggle setup
         map.put("controller1ButtonX", false);
         map.put("controller2ButtonX", false);
         map.put("controller1ButtonB", false);
         map.put("controller2ButtonB", false);
-        //Hardware map
-        boolean spinBool = false;
+        
+        //Default powers
         double armPower = 0.68;
         double wristPower = 0;
         int intake = 0;
         int spin = 0;
+        
+        //hardwaremap
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
@@ -60,23 +67,20 @@ public class Bigboi extends LinearOpMode {
         Servo armRotation = hardwareMap.servo.get("armRotation");
 
 
-
+        //set motor direction
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
         spinMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         armMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-
+        
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-
-
-
-
-
+            
+            //save gamepad stick positions to veribles
             double y = gamepad1.left_stick_y;
             double x = -gamepad1.left_stick_x * 1; // 1.1 counters imperfect strafing
             double rx = gamepad1.right_stick_x;
@@ -87,7 +91,8 @@ public class Bigboi extends LinearOpMode {
             double backLeftPower = (y - x - rx) / denominator;
             double frontRightPower = (y - x + rx) / denominator;
             double backRightPower = (y + x + rx) / denominator;
-
+            
+            //carosel spinner
             if(gamepad1.left_bumper){
                 spin = 1;
             }else if(gamepad1.right_bumper){
@@ -95,7 +100,8 @@ public class Bigboi extends LinearOpMode {
             }else{
                 spin = 0;
             }
-
+            
+            //toggle intake
             if(onPush(gamepad2.x, "controller2ButtonX")) {
                 if (intake != 1) {
                     intake = 1;
@@ -103,7 +109,8 @@ public class Bigboi extends LinearOpMode {
                     intake = 0;
                 }
             }
-
+            
+            //toggle intake
             if(onPush(gamepad2.b, "controller2ButtonB")) {
                 if (intake != -1) {
                     intake = -1;
@@ -111,34 +118,28 @@ public class Bigboi extends LinearOpMode {
                     intake = 0;
                 }
             }
-
-            if(spinBool){
-                spinMotor.setPower(1);
-            }else{
-                spinMotor.setPower(0);
-            }
-
-/*            if(gamepad2.x){
-                intake = 1;
-            } else if(gamepad2.b){
-                intake = -1;
-            }else{
-                intake = 0;
-            }*/
-
+            
+            //moves arm up and down
             if(gamepad2.dpad_up){
                 armMotor.setPower(0.5);
-            }
-            if(gamepad2.dpad_down){
+            }else if(gamepad2.dpad_down){
                 armMotor.setPower(-0.3);
             }else{
                 armMotor.setPower(0);
             }
-
-            if(gamepad2.y){
-                armMovement.setPosition(0.65);
-            }
-
+            
+            //old code idk why this was being used but keep it in case it breaks something  
+//             if(gamepad2.dpad_up){
+//                 armMotor.setPower(0.5);
+//             }
+//             if(gamepad2.dpad_down){
+//                 armMotor.setPower(-0.3);
+//             }else{
+//                 armMotor.setPower(0);
+//             }
+            
+            
+            //rotate arm
             if(armPower < 1 && gamepad2.left_stick_y > 0) {
                 armPower += gamepad2.left_stick_y / 500;
             }
@@ -147,7 +148,7 @@ public class Bigboi extends LinearOpMode {
                 armPower += gamepad2.left_stick_y / 500;
             }
             
-            
+            //rotate wrist
             if(wristPower < 1 && gamepad2.right_stick_y > 0) {
                 wristPower += gamepad2.right_stick_y / 500;
             }
@@ -156,13 +157,6 @@ public class Bigboi extends LinearOpMode {
                 wristPower += gamepad2.right_stick_y / 500;
             }
             
-            
-
-            telemetry.addData("arm pos: ", armMovement.getPosition());
-            telemetry.addData("wrist pos: : ", armRotation.getPosition());
-
-
-
             //setting power
             armRotation.setPosition(wristPower);
             armMovement.setPosition(armPower);
@@ -175,6 +169,8 @@ public class Bigboi extends LinearOpMode {
             motorBackRight.setPower(backRightPower);
 
             //control debugs
+            telemetry.addData("arm pos: ", armMovement.getPosition());
+            telemetry.addData("wrist pos: : ", armRotation.getPosition());
             telemetry.addData("frontLeft: ", frontLeftPower);
             telemetry.addData("frontRight: ", frontRightPower);
             telemetry.addData("backLeft: ", backLeftPower);
@@ -183,7 +179,6 @@ public class Bigboi extends LinearOpMode {
             telemetry.addData("B: ", gamepad2.b);
             telemetry.addData("LB:", gamepad1.left_bumper);
             telemetry.addData("RB:", gamepad1.right_bumper);
-            telemetry.addData("spinbool: ", spinBool);
 
             telemetry.update();
         }
