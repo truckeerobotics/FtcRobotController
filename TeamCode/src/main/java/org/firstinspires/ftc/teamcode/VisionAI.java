@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
 import org.opencv.core.Size;
@@ -146,7 +147,8 @@ class TFlitePipeline extends OpenCvPipeline
         Size scaleSize = new Size(1280,853);
         resize(input, resizedimage, scaleSize , 0, 0, INTER_AREA);
 
-        MatOfFloat resizedFloatImage = new MatOfFloat(input);
+        
+        MatOfFloat resizedFloatImage = new MatOfFloat(resizedimage);
 
         // Extremely slow, WORST case option.
         float[] resizedFloatImageArray = resizedFloatImage.toArray();
@@ -177,9 +179,6 @@ class TFlitePipeline extends OpenCvPipeline
         telemetry.addData("Output1: ", outputArray[0]);
         telemetry.addData("Output2: ", outputArray[1]);
         telemetry.addData("Output3: ", outputArray[2]);
-
-
-
 
         telemetry.update();
 
