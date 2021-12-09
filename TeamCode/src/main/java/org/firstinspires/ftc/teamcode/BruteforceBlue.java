@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -21,6 +22,7 @@ public class BruteforceBlue extends LinearOpMode {
     DcMotor motorFrontRight = null;
     DcMotor motorBackRight = null;
     DcMotor spin = null;
+    Servo armRotation = null;
 
     public void calcPower(double y, double x, double rx){
         //Wheel power calculations
@@ -34,15 +36,19 @@ public class BruteforceBlue extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         //Hardware map
-        DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
-        DcMotor motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
-        DcMotor motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
-        DcMotor motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
-        DcMotor spin = hardwareMap.dcMotor.get("spin");
+        motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
+        motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
+        motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
+        motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
+        spin = hardwareMap.dcMotor.get("spin");
+        armRotation = hardwareMap.servo.get("armRotation");
+
 
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
         spin.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        armRotation.setPosition(0.7);
 
         waitForStart();
 

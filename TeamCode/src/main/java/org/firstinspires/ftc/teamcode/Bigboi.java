@@ -47,10 +47,12 @@ public class Bigboi extends LinearOpMode {
         map.put("controller2ButtonX", false);
         map.put("controller1ButtonB", false);
         map.put("controller2ButtonB", false);
-        
+
+
+
         //Default powers
         double armPower = 0.68;
-        double wristPower = 0;
+        double wristPower = 0.7;
         int intake = 0;
         int spin = 0;
         
@@ -73,7 +75,9 @@ public class Bigboi extends LinearOpMode {
         intakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
         spinMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         armMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        
+
+        armRotation.setPosition(0.7);
+
         waitForStart();
 
         if (isStopRequested()) return;
