@@ -151,12 +151,12 @@ class TFlitePipeline extends OpenCvPipeline
         telemetry.update();
 
 
-        float[] inputArray = new float[10];
+        float[] inputArray = matToFloatArray(resizedimage);
         // Output
         float[][] outputArray = new float[1][3];
 
 
-        //interpreter.run(inputArray, outputArray);
+        interpreter.run(inputArray, outputArray);
 
         telemetry.addData("length: ", inputArray.length);
 
@@ -164,8 +164,8 @@ class TFlitePipeline extends OpenCvPipeline
         telemetry.addData("Output1: ", outputArray[0][0]);
         telemetry.addData("Output2: ", outputArray[0][1]);
         telemetry.addData("Output3: ", outputArray[0][2]);
-//
-//        telemetry.update();
+
+        telemetry.update();
 
 
         return input;
@@ -175,8 +175,7 @@ class TFlitePipeline extends OpenCvPipeline
         Mat floatMat = new Mat();
         doubleMat.convertTo(floatMat, CV_32F);
         float[] buffer = new float[(int)floatMat.total() * floatMat.channels()];
-
-        //floatMat.get(0,0,buffer);
+        floatMat.get(0,0,buffer);
         return buffer;
     }
 
