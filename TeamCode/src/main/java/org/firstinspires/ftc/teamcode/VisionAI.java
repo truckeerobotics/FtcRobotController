@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
 import org.opencv.core.Size;
@@ -32,7 +31,7 @@ import java.nio.channels.FileChannel;
 // the beginning of the teleop mode
 
 
-@Autonomous(name = "The Pain Train", group = "Concept")
+@Autonomous(name = "The Pain Train (WIP)", group = "Concept")
 
 public class VisionAI extends LinearOpMode {
 

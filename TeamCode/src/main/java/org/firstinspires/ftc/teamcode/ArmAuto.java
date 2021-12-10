@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "Arm auto")
+@Autonomous(name = "Arm auto (WIP)")
 public class ArmAuto extends LinearOpMode {
 
 
