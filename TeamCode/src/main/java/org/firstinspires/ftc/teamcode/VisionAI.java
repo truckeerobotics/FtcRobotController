@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 // importing many different libraries
 
+import static org.opencv.core.CvType.CV_32F;
 import static org.opencv.imgproc.Imgproc.INTER_AREA;
 import static org.opencv.imgproc.Imgproc.resize;
 
@@ -21,9 +22,11 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.Tensor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -146,34 +149,20 @@ class TFlitePipeline extends OpenCvPipeline
         Size scaleSize = new Size(1280,853);
         resize(input, resizedimage, scaleSize , 0, 0, INTER_AREA);
 
-        
-        MatOfFloat resizedFloatImage = new MatOfFloat(resizedimage);
+        telemetry.addData("Starting: ", "Convert");
 
-        // Extremely slow, WORST case option.
-        float[] resizedFloatImageArray = resizedFloatImage.toArray();
-        int index = 0;
-        float[][][] imagePixels = new float[resizedimage.height()][][];
-        for(int i = 0; i < resizedimage.height(); i++) {
-            float[][] imagePixelsRow = new float[resizedimage.width()][];
-            for(int j = 0; j < resizedimage.width(); j++) {
-                imagePixelsRow[j] = new float[] {resizedFloatImageArray[index], resizedFloatImageArray[index+1],resizedFloatImageArray[index+2]};
-                index += 3;
-            }
-            imagePixels[i] = imagePixelsRow;
-        }
+        telemetry.update();
 
-        float[][][][] inputArray = new float[][][][]{imagePixels};
+
+        float[] inputArray = matToFloatArray(resizedimage);
         // Output
         float[][] outputArray = new float[1][3];
 
-
-
+        
         //interpreter.run(inputArray, outputArray);
 
-        telemetry.addData("Shape0: ", inputArray.length);
-        telemetry.addData("Shape1: ", inputArray[0].length);
-        telemetry.addData("Shape2: ", inputArray[0][0].length);
-        telemetry.addData("Shape3: ", inputArray[0][0][0].length);
+        telemetry.addData("length: ", inputArray.length);
+
 
         telemetry.addData("Output1: ", outputArray[0]);
         telemetry.addData("Output2: ", outputArray[1]);
@@ -185,5 +174,31 @@ class TFlitePipeline extends OpenCvPipeline
         return input;
     }
 
+    public float[] matToFloatArray(Mat doubleMat) {
+        Mat floatMat = new Mat();
+        doubleMat.convertTo(floatMat, CV_32F);
+        float[] buffer = new float[(int)floatMat.total() * floatMat.channels()];
+        floatMat.get(0,0,buffer);
+        return buffer;
+    }
+
+
+//    public float[][][][] matToFloatArrayInefficient(Mat doubleMat) {
+//        float[][][][] result = new float[doubleMat.height()][][][];
+//
+//        float[] resizedFloatImageArray = doubleMat.toArray();
+//        int index = 0;
+//        float[][][] imagePixels = new float[doubleMat.height()][][];
+//        for(int i = 0; i < doubleMat.height(); i++) {
+//            float[][] imagePixelsRow = new float[doubleMat.width()][];
+//            for(int j = 0; j < doubleMat.width(); j++) {
+//                imagePixelsRow[j] = new float[] {resizedFloatImageArray[index], resizedFloatImageArray[index+1],resizedFloatImageArray[index+2]};
+//                index += 3;
+//            }
+//            imagePixels[i] = imagePixelsRow;
+//        }
+//
+//        return result;
+//    }
 
 }
