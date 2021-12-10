@@ -15,18 +15,15 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfFloat;
 import org.opencv.core.Size;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.tensorflow.lite.Interpreter;
-import org.tensorflow.lite.Tensor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.FloatBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 
@@ -154,21 +151,21 @@ class TFlitePipeline extends OpenCvPipeline
         telemetry.update();
 
 
-        float[] inputArray = matToFloatArray(resizedimage);
+        float[] inputArray = new float[10];
         // Output
         float[][] outputArray = new float[1][3];
 
-        
+
         //interpreter.run(inputArray, outputArray);
 
         telemetry.addData("length: ", inputArray.length);
 
 
-        telemetry.addData("Output1: ", outputArray[0]);
-        telemetry.addData("Output2: ", outputArray[1]);
-        telemetry.addData("Output3: ", outputArray[2]);
-
-        telemetry.update();
+        telemetry.addData("Output1: ", outputArray[0][0]);
+        telemetry.addData("Output2: ", outputArray[0][1]);
+        telemetry.addData("Output3: ", outputArray[0][2]);
+//
+//        telemetry.update();
 
 
         return input;
@@ -178,7 +175,8 @@ class TFlitePipeline extends OpenCvPipeline
         Mat floatMat = new Mat();
         doubleMat.convertTo(floatMat, CV_32F);
         float[] buffer = new float[(int)floatMat.total() * floatMat.channels()];
-        floatMat.get(0,0,buffer);
+
+        //floatMat.get(0,0,buffer);
         return buffer;
     }
 
