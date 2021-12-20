@@ -65,7 +65,6 @@ public class VisionAI extends LinearOpMode {
         // Give the camera the pipeline.
         camera.setPipeline(pipeline);
 
-
         // Open up the camera. Send to inCameraOpenSuccessResult or inCameraOpenErrorResult depending on if opening was successful
         // This is an Asynchronous function call, so when it is done opening it will call the function depending on result.
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
@@ -146,20 +145,13 @@ class TFlitePipeline extends OpenCvPipeline
         Size scaleSize = new Size(1280,853);
         resize(input, resizedimage, scaleSize , 0, 0, INTER_AREA);
 
-        telemetry.addData("Starting: ", "Convert");
-
-        telemetry.update();
-
-
-        float[] inputArray = matToFloatArray(resizedimage);
+        float[] inputBuffer = matToFloatArray(resizedimage);
+        float[][][][] inputArray = expandFloatArrayToOutput(inputBuffer, resizedimage.height(), resizedimage.width(), 3);
         // Output
         float[][] outputArray = new float[1][3];
 
 
         interpreter.run(inputArray, outputArray);
-
-        telemetry.addData("length: ", inputArray.length);
-
 
         telemetry.addData("Output1: ", outputArray[0][0]);
         telemetry.addData("Output2: ", outputArray[0][1]);
@@ -167,8 +159,7 @@ class TFlitePipeline extends OpenCvPipeline
 
         telemetry.update();
 
-
-        return input;
+        return resizedimage;
     }
 
     public float[] matToFloatArray(Mat doubleMat) {
@@ -179,23 +170,19 @@ class TFlitePipeline extends OpenCvPipeline
         return buffer;
     }
 
+    public float[][][][] expandFloatArrayToOutput(float[] toExpand, int height, int width, int colorCount) {
+        float[][][][] expandedFloatArray = new float [1][width][height][colorCount];
+        int index = 0;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                for (int color = 0; color < 3; color++) {
+                    expandedFloatArray[0][x][y][color] = toExpand[index];
+                    index++;
+                }
+            }
+        }
+        return expandedFloatArray;
 
-//    public float[][][][] matToFloatArrayInefficient(Mat doubleMat) {
-//        float[][][][] result = new float[doubleMat.height()][][][];
-//
-//        float[] resizedFloatImageArray = doubleMat.toArray();
-//        int index = 0;
-//        float[][][] imagePixels = new float[doubleMat.height()][][];
-//        for(int i = 0; i < doubleMat.height(); i++) {
-//            float[][] imagePixelsRow = new float[doubleMat.width()][];
-//            for(int j = 0; j < doubleMat.width(); j++) {
-//                imagePixelsRow[j] = new float[] {resizedFloatImageArray[index], resizedFloatImageArray[index+1],resizedFloatImageArray[index+2]};
-//                index += 3;
-//            }
-//            imagePixels[i] = imagePixelsRow;
-//        }
-//
-//        return result;
-//    }
+    }
 
 }
