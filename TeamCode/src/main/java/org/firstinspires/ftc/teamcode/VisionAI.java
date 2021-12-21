@@ -154,15 +154,14 @@ class TFlitePipeline extends OpenCvPipeline
 
         Imgproc.cvtColor(resizedimage, RGBColorSpaceImage , Imgproc.COLOR_BGRA2BGR);
 
-        telemetry.addData("test: ", (int)RGBColorSpaceImage.total());
-        telemetry.addData("test: ", RGBColorSpaceImage.channels());
+
 
         float[] inputBuffer = matToFloatArray(RGBColorSpaceImage);
         float[][][][] inputArray = expandFloatArrayToOutput(inputBuffer, RGBColorSpaceImage.height(), RGBColorSpaceImage.width(), 3);
         // Output
         float[][] outputArray = new float[1][3];
 
-        float[] collapseFloatArray = inputBuffer;
+        float[] collapseFloatArray = collapseFloatArray(inputArray);
 
         Mat imgf = new Mat(853, 1280, CvType.CV_32F);
         Mat imageFromArray = imgf.clone();
@@ -174,7 +173,8 @@ class TFlitePipeline extends OpenCvPipeline
 
         //interpreter.run(inputArray, outputArray);
 
-
+        telemetry.addData("test: ", (int)testOutput.total());
+        telemetry.addData("test: ", testOutput.channels());
 
         telemetry.addData("Array: ", inputArray[0][0][0][0]);
         telemetry.addData("Buffer: ", inputBuffer[0]);
@@ -208,8 +208,8 @@ class TFlitePipeline extends OpenCvPipeline
     public float[][][][] expandFloatArrayToOutput(float[] toExpand, int height, int width, int colorCount) {
         float[][][][] expandedFloatArray = new float [1][height][width][colorCount];
         int index = 0;
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
                 for (int color = 0; color < colorCount; color++) {
                     expandedFloatArray[0][x][y][color] = toExpand[index];
                     index++;
@@ -225,7 +225,7 @@ class TFlitePipeline extends OpenCvPipeline
         int index = 0;
         for (int x = 0; x < floatArray[0].length; x++) {
             for (int y = 0; y < floatArray[0][0].length; y++) {
-                for (int color = 0; color < 3; color++) {
+                for (int color = 0; color < floatArray[0][0][0].length; color++) {
                     collapsedFloatArray[index] = floatArray[0][x][y][color];
                     index++;
                 }
