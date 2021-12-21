@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.opencv.core.CvType.CV_32F;
 import static org.opencv.imgproc.Imgproc.INTER_AREA;
+import static org.opencv.imgproc.Imgproc.INTER_LINEAR;
 import static org.opencv.imgproc.Imgproc.resize;
 
 import android.content.res.AssetFileDescriptor;
@@ -14,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -26,6 +28,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 
 // the beginning of the teleop mode
@@ -143,15 +147,36 @@ class TFlitePipeline extends OpenCvPipeline
     {
         Mat resizedimage = new Mat();
         Size scaleSize = new Size(1280,853);
-        resize(input, resizedimage, scaleSize , 0, 0, INTER_AREA);
+        resize(input, resizedimage, scaleSize , 0, 0, INTER_LINEAR);
 
         float[] inputBuffer = matToFloatArray(resizedimage);
         float[][][][] inputArray = expandFloatArrayToOutput(inputBuffer, resizedimage.height(), resizedimage.width(), 3);
         // Output
         float[][] outputArray = new float[1][3];
 
+        Mat imgf = new Mat(853, 1280, CvType.CV_32F);
+        imgf.put( 0, 0, inputBuffer );
 
-        interpreter.run(inputArray, outputArray);
+        Mat testOutput = new Mat();
+        imgf.convertTo(testOutput, CvType.CV_8U);
+
+        telemetry.addData("W: ", testOutput.width());
+        telemetry.addData("H: ", testOutput.height());
+        telemetry.addData("D: ", testOutput.depth());
+
+
+
+
+        //interpreter.run(inputArray, outputArray);
+
+        telemetry.addData("Array: ", inputArray[0][0][0][0]);
+        telemetry.addData("Buffer: ", inputBuffer[0]);
+
+        telemetry.addData("Length1: ", inputArray.length);
+        telemetry.addData("Length2: ", inputArray[0].length);
+        telemetry.addData("Length3: ", inputArray[0][0].length);
+        telemetry.addData("Length4: ", inputArray[0][0][0].length);
+
 
         telemetry.addData("Output1: ", outputArray[0][0]);
         telemetry.addData("Output2: ", outputArray[0][1]);
@@ -159,7 +184,8 @@ class TFlitePipeline extends OpenCvPipeline
 
         telemetry.update();
 
-        return resizedimage;
+
+        return input;
     }
 
     public float[] matToFloatArray(Mat doubleMat) {
@@ -170,18 +196,35 @@ class TFlitePipeline extends OpenCvPipeline
         return buffer;
     }
 
+
+
     public float[][][][] expandFloatArrayToOutput(float[] toExpand, int height, int width, int colorCount) {
-        float[][][][] expandedFloatArray = new float [1][width][height][colorCount];
+        float[][][][] expandedFloatArray = new float [1][height][width][colorCount];
         int index = 0;
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 for (int color = 0; color < 3; color++) {
-                    expandedFloatArray[0][x][y][color] = toExpand[index];
+                    expandedFloatArray[0][y][x][color] = toExpand[index];
                     index++;
                 }
             }
         }
         return expandedFloatArray;
+
+    }
+
+    public float[] collapseFloatArray(float[][][][] floatArray) {
+        float[] collapsedFloatArray = new float[floatArray.length*floatArray[0].length*floatArray[0][0].length*floatArray[0][0][0].length];
+        int index = 0;
+        for (int x = 0; x < floatArray[0].length; x++) {
+            for (int y = 0; y < floatArray[0][0].length; y++) {
+                for (int color = 0; color < floatArray[0][0][0].length; color++) {
+                    index++;
+                    collapsedFloatArray[index] = floatArray[0][x][y][color];
+                }
+            }
+        }
+        return collapsedFloatArray;
 
     }
 
