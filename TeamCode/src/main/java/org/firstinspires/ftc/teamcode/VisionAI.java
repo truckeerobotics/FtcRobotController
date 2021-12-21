@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -149,20 +150,31 @@ class TFlitePipeline extends OpenCvPipeline
         Size scaleSize = new Size(1280,853);
         resize(input, resizedimage, scaleSize , 0, 0, INTER_LINEAR);
 
-        float[] inputBuffer = matToFloatArray(resizedimage);
-        float[][][][] inputArray = expandFloatArrayToOutput(inputBuffer, resizedimage.height(), resizedimage.width(), 3);
+        Mat RGBColorSpaceImage = resizedimage.clone();
+
+        Imgproc.cvtColor(resizedimage, RGBColorSpaceImage , Imgproc.COLOR_BGRA2BGR);
+
+        telemetry.addData("test: ", (int)RGBColorSpaceImage.total());
+        telemetry.addData("test: ", RGBColorSpaceImage.channels());
+
+        float[] inputBuffer = matToFloatArray(RGBColorSpaceImage);
+        float[][][][] inputArray = expandFloatArrayToOutput(inputBuffer, RGBColorSpaceImage.height(), RGBColorSpaceImage.width(), 3);
         // Output
         float[][] outputArray = new float[1][3];
 
-        Mat imgf = new Mat(853, 1280, CvType.CV_32F);
-        imgf.put( 0, 0, inputBuffer );
+        float[] collapseFloatArray = inputBuffer;
 
-        Mat testOutput = new Mat();
-        imgf.convertTo(testOutput, CvType.CV_8U);
+        Mat imgf = new Mat(853, 1280, CvType.CV_32F);
+        Mat imageFromArray = imgf.clone();
+        Imgproc.cvtColor(imgf, imageFromArray , Imgproc.COLOR_BGRA2BGR);
+        imageFromArray.put( 0, 0, collapseFloatArray );
+
+        Mat testOutput = imageFromArray.clone();
+        imageFromArray.convertTo(testOutput, CvType.CV_8U);
 
         //interpreter.run(inputArray, outputArray);
 
-        telemetry.addData("test: ", (int)resizedimage.total() * resizedimage.channels());
+
 
         telemetry.addData("Array: ", inputArray[0][0][0][0]);
         telemetry.addData("Buffer: ", inputBuffer[0]);
@@ -180,7 +192,7 @@ class TFlitePipeline extends OpenCvPipeline
         telemetry.update();
 
 
-        return input;
+        return testOutput;
     }
 
     public float[] matToFloatArray(Mat doubleMat) {
@@ -198,8 +210,8 @@ class TFlitePipeline extends OpenCvPipeline
         int index = 0;
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                for (int color = 0; color < 3; color++) {
-                    expandedFloatArray[0][y][x][color] = toExpand[index];
+                for (int color = 0; color < colorCount; color++) {
+                    expandedFloatArray[0][x][y][color] = toExpand[index];
                     index++;
                 }
             }
@@ -213,9 +225,9 @@ class TFlitePipeline extends OpenCvPipeline
         int index = 0;
         for (int x = 0; x < floatArray[0].length; x++) {
             for (int y = 0; y < floatArray[0][0].length; y++) {
-                for (int color = 0; color < floatArray[0][0][0].length; color++) {
-                    index++;
+                for (int color = 0; color < 3; color++) {
                     collapsedFloatArray[index] = floatArray[0][x][y][color];
+                    index++;
                 }
             }
         }
