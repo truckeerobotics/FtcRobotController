@@ -160,14 +160,9 @@ class TFlitePipeline extends OpenCvPipeline
         Mat testOutput = new Mat();
         imgf.convertTo(testOutput, CvType.CV_8U);
 
-        telemetry.addData("W: ", testOutput.width());
-        telemetry.addData("H: ", testOutput.height());
-        telemetry.addData("D: ", testOutput.depth());
-
-
-
-
         //interpreter.run(inputArray, outputArray);
+
+        telemetry.addData("test: ", (int)resizedimage.total() * resizedimage.channels());
 
         telemetry.addData("Array: ", inputArray[0][0][0][0]);
         telemetry.addData("Buffer: ", inputBuffer[0]);
