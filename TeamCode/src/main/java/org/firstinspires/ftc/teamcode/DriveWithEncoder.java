@@ -42,7 +42,7 @@ public class DriveWithEncoder extends LinearOpMode
         motorFrontLeft.setTargetPosition(1000);
         motorBackLeft.setTargetPosition(1000);
         motorFrontRight.setTargetPosition(1000);
-        motorBackRight.setTargetPosition(1000  );
+        motorBackRight.setTargetPosition(1000);
 
         waitForStart();
 
