@@ -32,9 +32,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 
 /**
  * This file illustrates the concept of driving a path based on encoder counts.
@@ -68,21 +67,21 @@ import org.firstinspires.ftc.robotcontroller.external.samples.HardwarePushbot;
 public class EncoderDrive extends LinearOpMode {
 
     /* Declare OpMode members. */
-    HardwarePushbot robot   = new HardwarePushbot();   // Use a Pushbot's hardware
+    //HardwarePushbot         robot   = new HardwarePushbot();   // Use a Pushbot's hardware
     private ElapsedTime     runtime = new ElapsedTime();
 
     static final double     COUNTS_PER_MOTOR_REV    = 105 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 40.0 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 3.75 ;     // For figuring circumference
+    static final double     WHEEL_DIAMETER_INCHES   = 3.75;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double     DRIVE_SPEED             = 0.6;
     static final double     TURN_SPEED              = 0.5;
 
-    DcMotor motorFrontLeft;
-    DcMotor motorBackLeft;
-    DcMotor motorFrontRight;
-    DcMotor motorBackRight;
+    DcMotor motorFrontLeft = null;
+    DcMotor motorBackLeft = null;
+    DcMotor motorFrontRight = null;
+    DcMotor motorBackRight = null;
 
     @Override
     public void runOpMode() {
@@ -95,6 +94,9 @@ public class EncoderDrive extends LinearOpMode {
         motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
         motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
         motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
+
+        motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // Send telemetry message to signify robot waiting;
         telemetry.addData("Status:", "Resetting Encoders while doing a little bit of trolling.");    //
@@ -124,9 +126,9 @@ public class EncoderDrive extends LinearOpMode {
 
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(DRIVE_SPEED,  48,  48, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-        encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+        encoderDrive(DRIVE_SPEED,  -5,  -5, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        //encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
+        //encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -141,15 +143,25 @@ public class EncoderDrive extends LinearOpMode {
      *  2) Move runs out of time
      *  3) Driver stops the opmode running.
      */
-    public void encoderDrive(double speed,
-                             double leftInches, double rightInches,
-                             double timeoutS) {
+    public void encoderDrive(double speed, double leftInches, double rightInches, double timeoutS) {
 
+        int newFrontLeftTarget;
+        int newBackLeftTarget;
+        int newFrontRightTarget;
+        int newBackRightTarget;
 
         // Ensure that the opmode is still active
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
+            newFrontLeftTarget = motorFrontLeft.getCurrentPosition() + (int)(leftInches / 4 * COUNTS_PER_INCH);
+            newBackLeftTarget = motorBackLeft.getCurrentPosition() + (int)(leftInches / 4 * COUNTS_PER_INCH);
+            newFrontRightTarget = motorFrontRight.getCurrentPosition() + (int)(rightInches / 4 * COUNTS_PER_INCH);
+            newBackRightTarget = motorBackRight.getCurrentPosition() + (int)(rightInches / 4 * COUNTS_PER_INCH);
+            motorFrontLeft.setTargetPosition(newFrontLeftTarget);
+            motorBackLeft.setTargetPosition(newBackLeftTarget);
+            motorFrontRight.setTargetPosition(newFrontRightTarget);
+            motorBackRight.setTargetPosition(newBackRightTarget);
 
 
             // Turn On RUN_TO_POSITION
