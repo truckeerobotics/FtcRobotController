@@ -161,20 +161,17 @@ class TFlitePipeline extends OpenCvPipeline
         // Output
         float[][] outputArray = new float[1][3];
 
-        float[] collapseFloatArray = collapseFloatArray(inputArray);
+//        float[] collapseFloatArray = collapseFloatArray(inputArray);
 
-        Mat imgf = new Mat(853, 1280, CvType.CV_32F);
-        Mat imageFromArray = imgf.clone();
-        Imgproc.cvtColor(imgf, imageFromArray , Imgproc.COLOR_BGRA2BGR);
-        imageFromArray.put( 0, 0, collapseFloatArray );
+//        Mat imgf = new Mat(853, 1280, CvType.CV_32F);
+//        Mat imageFromArray = imgf.clone();
+//        Imgproc.cvtColor(imgf, imageFromArray , Imgproc.COLOR_BGRA2BGR);
+//        imageFromArray.put( 0, 0, collapseFloatArray );
+//
+//        Mat testOutput = imageFromArray.clone();
+//        imageFromArray.convertTo(testOutput, CvType.CV_8U);
 
-        Mat testOutput = imageFromArray.clone();
-        imageFromArray.convertTo(testOutput, CvType.CV_8U);
-
-        //interpreter.run(inputArray, outputArray);
-
-        telemetry.addData("test: ", (int)testOutput.total());
-        telemetry.addData("test: ", testOutput.channels());
+        interpreter.run(inputArray, outputArray);
 
         telemetry.addData("Array: ", inputArray[0][0][0][0]);
         telemetry.addData("Buffer: ", inputBuffer[0]);
@@ -192,7 +189,7 @@ class TFlitePipeline extends OpenCvPipeline
         telemetry.update();
 
 
-        return testOutput;
+        return resizedimage;
     }
 
     public float[] matToFloatArray(Mat doubleMat) {
@@ -211,7 +208,7 @@ class TFlitePipeline extends OpenCvPipeline
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 for (int color = 0; color < colorCount; color++) {
-                    expandedFloatArray[0][x][y][color] = toExpand[index];
+                    expandedFloatArray[0][y][x][color] = toExpand[index];
                     index++;
                 }
             }
