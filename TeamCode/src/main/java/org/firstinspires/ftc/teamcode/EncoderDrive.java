@@ -70,7 +70,7 @@ public class EncoderDrive extends LinearOpMode {
     //HardwarePushbot         robot   = new HardwarePushbot();   // Use a Pushbot's hardware
     private ElapsedTime     runtime = new ElapsedTime();
 
-    static final double     COUNTS_PER_MOTOR_REV    = 105 ;    // eg: TETRIX Motor Encoder
+    static final double     COUNTS_PER_MOTOR_REV    = 28 ;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 40.0 ;     // This is < 1.0 if geared UP
     static final double     WHEEL_DIAMETER_INCHES   = 3.75;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
@@ -82,6 +82,7 @@ public class EncoderDrive extends LinearOpMode {
     DcMotor motorBackLeft = null;
     DcMotor motorFrontRight = null;
     DcMotor motorBackRight = null;
+    DcMotor spin = null;
 
     @Override
     public void runOpMode() {
@@ -94,6 +95,7 @@ public class EncoderDrive extends LinearOpMode {
         motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
         motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
         motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
+        spin = hardwareMap.dcMotor.get("spin");
 
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -124,15 +126,41 @@ public class EncoderDrive extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
 
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        encoderDrive(DRIVE_SPEED,  -5,  -5, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        //encoderDrive(TURN_SPEED,   12, -12, 4.0);  // S2: Turn Right 12 Inches with 4 Sec timeout
-        //encoderDrive(DRIVE_SPEED, -24, -24, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+        //RED SIDE
+        encoderDrive(DRIVE_SPEED,  -7,  7, 7, -7, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        encoderDrive(DRIVE_SPEED,  -45,  -45, -45, -45, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        spin.setPower(-1);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < 3)) {
+            telemetry.addData("Spinning: ", "Spinning!");
+            telemetry.update();
+        }
+        spin.setPower(0);
+        encoderDrive(DRIVE_SPEED,  -20,  20, 20, -20, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+
+
+
+
+
+        /*encoderDrive(DRIVE_SPEED,  3,  3, 3, 3, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        encoderDrive(DRIVE_SPEED,  50,  -50, -50, 50, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        spin.setPower(1);
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < 3)) {
+            telemetry.addData("Spinning: ", "Spinning!");
+            telemetry.update();
+        }
+        spin.setPower(0);
+        encoderDrive(DRIVE_SPEED,  15,  15, 15, 15, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout*/
+
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
         sleep(4000);
+    }
+
+    public void moveForward(double inches){
+        encoderDrive();
     }
 
     /*
@@ -143,7 +171,8 @@ public class EncoderDrive extends LinearOpMode {
      *  2) Move runs out of time
      *  3) Driver stops the opmode running.
      */
-    public void encoderDrive(double speed, double leftInches, double rightInches, double timeoutS) {
+    public void encoderDrive(double speed, double frontRightInches, double backRightInches, double frontLeftInches, double backLeftInches,
+                             double timeoutSec) {
 
         int newFrontLeftTarget;
         int newBackLeftTarget;
@@ -154,10 +183,10 @@ public class EncoderDrive extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            newFrontLeftTarget = motorFrontLeft.getCurrentPosition() + (int)(leftInches / 4 * COUNTS_PER_INCH);
-            newBackLeftTarget = motorBackLeft.getCurrentPosition() + (int)(leftInches / 4 * COUNTS_PER_INCH);
-            newFrontRightTarget = motorFrontRight.getCurrentPosition() + (int)(rightInches / 4 * COUNTS_PER_INCH);
-            newBackRightTarget = motorBackRight.getCurrentPosition() + (int)(rightInches / 4 * COUNTS_PER_INCH);
+            newFrontLeftTarget = motorFrontLeft.getCurrentPosition() + (int)(frontLeftInches * COUNTS_PER_INCH);
+            newBackLeftTarget = motorBackLeft.getCurrentPosition() + (int)(backLeftInches * COUNTS_PER_INCH);
+            newFrontRightTarget = motorFrontRight.getCurrentPosition() + (int)(frontRightInches * COUNTS_PER_INCH);
+            newBackRightTarget = motorBackRight.getCurrentPosition() + (int)(backRightInches * COUNTS_PER_INCH);
             motorFrontLeft.setTargetPosition(newFrontLeftTarget);
             motorBackLeft.setTargetPosition(newBackLeftTarget);
             motorFrontRight.setTargetPosition(newFrontRightTarget);
@@ -183,7 +212,7 @@ public class EncoderDrive extends LinearOpMode {
             // always end the motion as soon as possible.
             // However, if you require that BOTH motors have finished their moves before the robot continues
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
-            while (opModeIsActive() && (runtime.seconds() < timeoutS) && (motorFrontLeft.isBusy() && motorBackLeft.isBusy() && motorFrontRight.isBusy() && motorBackRight.isBusy())) {
+            while (opModeIsActive() && (runtime.seconds() < timeoutSec) && (motorFrontLeft.isBusy() && motorBackLeft.isBusy() && motorFrontRight.isBusy() && motorBackRight.isBusy())) {
 
                 // Display it for the driver.
                 telemetry.addData("Path1",  "Running to %7d :%7d");
