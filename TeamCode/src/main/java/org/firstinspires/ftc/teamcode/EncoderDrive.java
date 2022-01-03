@@ -127,8 +127,8 @@ public class EncoderDrive extends LinearOpMode {
         waitForStart();
 
         //RED SIDE
-        encoderDrive(DRIVE_SPEED,  -7,  7, 7, -7, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(DRIVE_SPEED,  -45,  -45, -45, -45, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        strafeLeft(DRIVE_SPEED,  7);
+        moveForward(DRIVE_SPEED, 45);
         spin.setPower(-1);
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 3)) {
@@ -136,7 +136,7 @@ public class EncoderDrive extends LinearOpMode {
             telemetry.update();
         }
         spin.setPower(0);
-        encoderDrive(DRIVE_SPEED,  -20,  20, 20, -20, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
+        encoderDrive(DRIVE_SPEED,  -20,  20, 20, -20);  // S1: Forward 47 Inches with 5 Sec timeout
 
 
 
@@ -159,8 +159,16 @@ public class EncoderDrive extends LinearOpMode {
         sleep(4000);
     }
 
-    public void moveForward(double inches){
-        encoderDrive();
+    public void moveForward(double speed, double inches){
+        encoderDrive(speed, inches * -1, inches * -1, inches * -1, inches * -1);
+    }
+
+    public void strafeLeft(double speed, double inches){
+        encoderDrive(speed, inches * -1, inches, inches, inches * -1);
+    }
+
+    public void rotate(double speed, double inches){
+        encoderDrive(speed, inches * -1, inches * -1, inches, inches);
     }
 
     /*
@@ -171,8 +179,7 @@ public class EncoderDrive extends LinearOpMode {
      *  2) Move runs out of time
      *  3) Driver stops the opmode running.
      */
-    public void encoderDrive(double speed, double frontRightInches, double backRightInches, double frontLeftInches, double backLeftInches,
-                             double timeoutSec) {
+    private void encoderDrive(double speed, double frontRightInches, double backRightInches, double frontLeftInches, double backLeftInches) {
 
         int newFrontLeftTarget;
         int newBackLeftTarget;
@@ -212,7 +219,7 @@ public class EncoderDrive extends LinearOpMode {
             // always end the motion as soon as possible.
             // However, if you require that BOTH motors have finished their moves before the robot continues
             // onto the next step, use (isBusy() || isBusy()) in the loop test.
-            while (opModeIsActive() && (runtime.seconds() < timeoutSec) && (motorFrontLeft.isBusy() && motorBackLeft.isBusy() && motorFrontRight.isBusy() && motorBackRight.isBusy())) {
+            while (opModeIsActive()  && (motorFrontLeft.isBusy() && motorBackLeft.isBusy() && motorFrontRight.isBusy() && motorBackRight.isBusy())) {
 
                 // Display it for the driver.
                 telemetry.addData("Path1",  "Running to %7d :%7d");
