@@ -19,13 +19,13 @@ public class Lilboi extends LinearOpMode {
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
-        DcMotor spinMotor = hardwareMap.dcMotor.get("spin");
+        //DcMotor spinMotor = hardwareMap.dcMotor.get("spin");
 
 
         //set motor direction
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        spinMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        //spinMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         waitForStart();
 
@@ -35,8 +35,8 @@ public class Lilboi extends LinearOpMode {
             
             //save gamepad stick positions to veribles
             double y = gamepad1.left_stick_y;
-            double x = -gamepad1.left_stick_x * 1; // 1.1 counters imperfect strafing
-            double rx = gamepad1.right_stick_x;
+            double x = gamepad1.right_stick_x * 1; // 1.1 counters imperfect strafing
+            double rx = -gamepad1.left_stick_x;
 
             //Wheel power calculations
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
@@ -55,7 +55,7 @@ public class Lilboi extends LinearOpMode {
             }
             
 
-            spinMotor.setPower(spin);
+            //spinMotor.setPower(spin);
             motorFrontLeft.setPower(frontLeftPower);
             motorBackLeft.setPower(backLeftPower);
             motorFrontRight.setPower(frontRightPower);
