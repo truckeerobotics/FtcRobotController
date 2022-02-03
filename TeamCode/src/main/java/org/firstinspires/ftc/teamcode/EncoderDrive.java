@@ -138,10 +138,6 @@ public class EncoderDrive extends LinearOpMode {
         spin.setPower(0);
         encoderDrive(DRIVE_SPEED,  -20,  20, 20, -20);  // S1: Forward 47 Inches with 5 Sec timeout
 
-
-
-
-
         /*encoderDrive(DRIVE_SPEED,  3,  3, 3, 3, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
         encoderDrive(DRIVE_SPEED,  50,  -50, -50, 50, 5.0);  // S1: Forward 47 Inches with 5 Sec timeout
         spin.setPower(1);
