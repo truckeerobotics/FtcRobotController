@@ -4,14 +4,49 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
+
+import java.util.HashMap;
 
 @TeleOp(name = "Lil Main Drive")
 public class Lilboi extends LinearOpMode {
 
-    private int position = 0;
+    //Define togglebind hashmap
+    HashMap<String, Boolean> map=new HashMap<String, Boolean>();
+
+    //onpush function
+    boolean onPush(boolean button, String buttonName){
+        //loop though toggle hashmap
+        for (HashMap.Entry<String, Boolean> entry : map.entrySet()) {
+            //save the key and value to varibles
+            String key = entry.getKey();
+            Boolean value = entry.getValue();
+            //check if the key is the value passed into the function
+            if(key == buttonName){
+                //if it is and the last tick was a diffrent value we set it to true, thus toggleing the boolean
+                if(button && !value){
+                    map.put(key, button);
+                    return true;
+                }else{
+                    map.put(key, button);
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
 
     @Override
     public void runOpMode() throws InterruptedException {
+
+        //Control toggle setup
+        map.put("controller1ButtonX", false);
+        map.put("controller2ButtonX", false);
+        map.put("controller1ButtonB", false);
+        map.put("controller2ButtonB", false);
+
+        // default power
+        int intake = 0;
 
         //hardwaremap
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
@@ -21,7 +56,10 @@ public class Lilboi extends LinearOpMode {
         DcMotor spinMotor = hardwareMap.dcMotor.get("spin");
         DcMotor shoulderMotor = hardwareMap.dcMotor.get("shoulder");
         DcMotor elbowMotor = hardwareMap.dcMotor.get("elbow");
+        Servo intakeLeft = hardwareMap.servo.get("intakeLeft");
+        Servo intakeRight = hardwareMap.servo.get("intakeRight");
 
+        intakeRight.setDirection(Servo.Direction.REVERSE);
 
         //set motor direction
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -29,8 +67,6 @@ public class Lilboi extends LinearOpMode {
 
         // Setup shoulder
         shoulderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        shoulderMotor.setTargetPosition(position);
-        shoulderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         waitForStart();
 
@@ -63,24 +99,41 @@ public class Lilboi extends LinearOpMode {
             }
 
             if(gamepad1.dpad_up){
-                shoulderPower = 0.5;
-                position += 20;
+                shoulderPower = 0.25;
             }else if(gamepad1.dpad_down){
-                shoulderPower = -0.5;
-                position += 20;
+                shoulderPower = -0.25;
             }else{
                 shoulderPower = 0;
             }
 
             if(gamepad1.dpad_right){
-                elbowPower = 1;
+                elbowPower = 0.5;
             }else if(gamepad1.dpad_left){
-                elbowPower = -1;
+                elbowPower = -0.5;
             }else {
                 elbowPower = 0;
             }
 
-            shoulderMotor.setTargetPosition(position);
+            //toggle intake
+            if(onPush(gamepad2.x, "controller2ButtonX")) {
+                if (intake != 1) {
+                    intake = 1;
+                } else {
+                    intake = 0;
+                }
+            }
+
+            //toggle intake
+            if(onPush(gamepad2.b, "controller2ButtonB")) {
+                if (intake != -1) {
+                    intake = -1;
+                } else {
+                    intake = 0;
+                }
+            }
+            intakeRight.setPosition(intake);
+            intakeLeft.setPosition(intake);
+
             shoulderMotor.setPower(shoulderPower);
             elbowMotor.setPower(elbowPower);
             spinMotor.setPower(spin);
@@ -89,6 +142,7 @@ public class Lilboi extends LinearOpMode {
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
 
+            telemetry.addData("Debug: ", shoulderMotor.getCurrentPosition());
             telemetry.addData("frontLeft: ", frontLeftPower);
             telemetry.addData("frontRight: ", frontRightPower);
             telemetry.addData("backLeft: ", backLeftPower);

@@ -60,7 +60,7 @@ public class ColorDensity extends LinearOpMode {
 
     // If the camera was opened up, then start streaming.
     public void inCameraOpenSuccessResult(OpenCvCamera camera) {
-        camera.startStreaming(1920, 1080, OpenCvCameraRotation.UPRIGHT);
+        camera.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
     }
 
     // If camera had an error when trying to be opened.
@@ -72,7 +72,7 @@ public class ColorDensity extends LinearOpMode {
 class ColorDensityPipeline extends OpenCvPipeline
 {
     Telemetry telemetry;
-    private int threshold = 0;
+    private int threshold = 30;
 
     public ColorDensityPipeline(Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -81,25 +81,49 @@ class ColorDensityPipeline extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
+
         Mat thresholdMat = new Mat();
         // Get the average color for green and then add on the threshold, for the min value.
         Scalar meanColor = Core.mean(input);
-        Scalar min = new Scalar(255,meanColor.val[1]+threshold,255);
-        Scalar max = new Scalar(255,255,255);
+        Scalar min = new Scalar(0,meanColor.val[1]+threshold,0,0);
+        Scalar max = new Scalar(150,255,150,255);
         // Do the thresholding.
         Core.inRange(input, min, max,thresholdMat);
 
         // Get size
         Size imageSize = thresholdMat.size();
 
-        //Split the image into 3 parts
-        Rect toCrop = new Rect(0, 0, (int)(imageSize.width/3), (int)imageSize.height);
-        Mat cropped = new Mat(thresholdMat, toCrop);
-        Size croppedSize = cropped.size();
+        //Split the image into 3 parts, and get their brightnesses.
+        // This could be improved by doing a for loop.
+        Rect leftRectCrop = new Rect(0, 0, (int)(imageSize.width/3), (int)imageSize.height);
+        Mat leftCropped = new Mat(thresholdMat, leftRectCrop);
+        double brightnessLeft = Core.mean(leftCropped).val[0];
+
+        Rect middleRectCrop = new Rect((int)(imageSize.width/3), 0, (int)(imageSize.width/3), (int)imageSize.height);
+        Mat middleCropped = new Mat(thresholdMat, middleRectCrop);
+        double brightnessMiddle = Core.mean(middleCropped).val[0];
+
+        Rect rightRectCrop = new Rect((int)(imageSize.width/3)*2, 0, (int)(imageSize.width/3), (int)imageSize.height);
+        Mat rightCropped = new Mat(thresholdMat, rightRectCrop);
+        double brightnessRight = Core.mean(rightCropped).val[0];
+
+        // Get which one is brightest
+        if (brightnessLeft > brightnessMiddle && brightnessLeft > brightnessRight) {
+            telemetry.addData("RESULT: ", "LEFT");
+        } else if (brightnessMiddle > brightnessRight) {
+            telemetry.addData("RESULT: ", "MIDDLE");
+        } else {
+            telemetry.addData("RESULT: ", "RIGHT");
+        }
 
         // print data
-        telemetry.addData("Cropped Width: ", croppedSize.width);
-        telemetry.addData("Cropped Height: ", croppedSize.height);
+//        telemetry.addData("Max Color: ", max);
+//        telemetry.addData("Min Color: ", min);
+//        telemetry.addData("Mean Color: ", meanColor);
+//        telemetry.addData("Bright Right: ", brightnessRight);
+//        telemetry.addData("Bright Middle: ", brightnessMiddle);
+//        telemetry.addData("Bright Left: ", brightnessLeft);
+
         telemetry.update();
 
         return thresholdMat;
