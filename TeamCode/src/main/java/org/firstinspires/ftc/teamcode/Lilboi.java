@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 @TeleOp(name = "Lil Main Drive")
 public class Lilboi extends LinearOpMode {
 
+    private int position = 0;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -24,7 +26,10 @@ public class Lilboi extends LinearOpMode {
         //set motor direction
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        // Setup shoulder
         shoulderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shoulderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         waitForStart();
 
@@ -58,8 +63,10 @@ public class Lilboi extends LinearOpMode {
 
             if(gamepad1.dpad_up){
                 shoulderPower = 0.5;
+                position += 20;
             }else if(gamepad1.dpad_down){
                 shoulderPower = -0.5;
+                position += 20;
             }else{
                 shoulderPower = 0;
             }
@@ -72,6 +79,7 @@ public class Lilboi extends LinearOpMode {
                 elbowPower = 0;
             }
 
+            shoulderMotor.setTargetPosition(position);
             shoulderMotor.setPower(shoulderPower);
             elbowMotor.setPower(elbowPower);
             spinMotor.setPower(spin);
