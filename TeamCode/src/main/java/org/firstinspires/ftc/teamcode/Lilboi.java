@@ -29,6 +29,7 @@ public class Lilboi extends LinearOpMode {
 
         // Setup shoulder
         shoulderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shoulderMotor.setTargetPosition(position);
         shoulderMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         waitForStart();
@@ -75,7 +76,7 @@ public class Lilboi extends LinearOpMode {
                 elbowPower = 1;
             }else if(gamepad1.dpad_left){
                 elbowPower = -1;
-            }else{
+            }else {
                 elbowPower = 0;
             }
 
