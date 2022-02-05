@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 // importing many different libraries
 
 import static org.opencv.core.CvType.CV_32F;
-import static org.opencv.imgproc.Imgproc.INTER_AREA;
 import static org.opencv.imgproc.Imgproc.INTER_LINEAR;
 import static org.opencv.imgproc.Imgproc.resize;
 
@@ -11,11 +10,11 @@ import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -29,15 +28,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 
 // the beginning of the teleop mode
 
 
 @Autonomous(name = "The Pain Train (WIP)", group = "Concept")
-
+@Disabled
 public class VisionAI extends LinearOpMode {
 
     final String pathTensorflowLiteModel = "duck_level_model.tflite";

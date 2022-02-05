@@ -76,7 +76,6 @@ public class Bigboi extends LinearOpMode {
         spinMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         armMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        armRotation.setPosition(0.7);
 
         waitForStart();
 
