@@ -110,27 +110,27 @@ class ColorDensityPipeline extends OpenCvPipeline
         // TO DO: COMBINE BRIGHTNESS DETECTION AND HIGHEST BRIGHTNESS
 
         //Split the image into 3 parts, and get their brightnesses.
-        double[] levelBrightnesses = new double[levelCount];
-        for (int level = 0; level < levelCount; level++) {
-            Rect rectCrop = new Rect((int)(imageSize.width/levelCount) * level, 0, (int)(imageSize.width/levelCount) * (level + 1), (int)imageSize.height);
-            Mat matCropped = new Mat(thresholdMat, rectCrop);
-            double brightness = Core.mean(matCropped).val[0];
-
-            levelBrightnesses[level] = brightness;
-        }
-
-        // Get which one is brightest and how bright.
-        double brightestValue = 0;
-        int brightestLevel = 2;
-        for (int level = 0; level < levelCount; level++) {
-            if (levelBrightnesses[level] > brightestValue) {
-                brightestValue = levelBrightnesses[level];
-                brightestLevel = level;
-            }
-        }
-
-        telemetry.addData("HIGHEST BRIGHTNESS: ", brightestValue);
-        telemetry.addData("RESULT: ", brightestLevel);
+//        double[] levelBrightnesses = new double[levelCount];
+//        for (int level = 0; level < levelCount; level++) {
+//            Rect rectCrop = new Rect((int)(imageSize.width/levelCount) * level, 0, (int)(imageSize.width/levelCount) * (level + 1), (int)imageSize.height);
+//            Mat matCropped = new Mat(thresholdMat, rectCrop);
+//            double brightness = Core.mean(matCropped).val[0];
+//
+//            levelBrightnesses[level] = brightness;
+//        }
+//
+//        // Get which one is brightest and how bright.
+//        double brightestValue = 0;
+//        int brightestLevel = 2;
+//        for (int level = 0; level < levelCount; level++) {
+//            if (levelBrightnesses[level] > brightestValue) {
+//                brightestValue = levelBrightnesses[level];
+//                brightestLevel = level;
+//            }
+//        }
+//
+//        telemetry.addData("HIGHEST BRIGHTNESS: ", brightestValue);
+//        telemetry.addData("RESULT: ", brightestLevel);
 
 
         // print data
