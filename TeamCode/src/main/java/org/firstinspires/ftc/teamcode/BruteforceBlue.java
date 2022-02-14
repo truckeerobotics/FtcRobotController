@@ -49,7 +49,7 @@ public class BruteforceBlue extends LinearOpMode {
         waitForStart();
 
         if (isStopRequested()) return;
-        moveForward(DRIVE_SPEED, -3);
+        moveForward(DRIVE_SPEED, 3);
         strafeLeft(DRIVE_SPEED / 2, -40);
         spin.setPower(1);
         runtime.reset();

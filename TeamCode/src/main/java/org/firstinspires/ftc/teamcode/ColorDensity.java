@@ -17,12 +17,20 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.tensorflow.lite.Interpreter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 @Autonomous(name = "Color Density", group = "Concept")
 
 public class ColorDensity extends LinearOpMode {
 
-    int level = 0;
-    ColorDensityPipeline pipeline;
+    // Constants
+    private final int cameraPixelWidth = 1920;
+    private final int cameraPixelHeight = 1080;
+
+    // Instance Variables
+    private int level = 0;
+    private ColorDensityPipeline pipeline;
 
     @Override
     public void runOpMode() {
@@ -34,7 +42,6 @@ public class ColorDensity extends LinearOpMode {
 
         // Give the camera the pipeline.
         camera.setPipeline(pipeline);
-
         // Open up the camera. Send to inCameraOpenSuccessResult or inCameraOpenErrorResult depending on if opening was successful
         // This is an Asynchronous function call, so when it is done opening it will call the function depending on result.
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
@@ -43,6 +50,7 @@ public class ColorDensity extends LinearOpMode {
             @Override public void onError(int errorCode) { inCameraOpenErrorResult(errorCode); }
         });
 
+        // Main Loop
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
@@ -60,19 +68,23 @@ public class ColorDensity extends LinearOpMode {
 
     // If the camera was opened up, then start streaming.
     public void inCameraOpenSuccessResult(OpenCvCamera camera) {
-        camera.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
+        camera.startStreaming(cameraPixelWidth, cameraPixelHeight, OpenCvCameraRotation.UPRIGHT);
     }
 
     // If camera had an error when trying to be opened.
     public void inCameraOpenErrorResult(int errorCode) {
-
+        System.out.println("Error occurred, check logcat if possible. The error code is " + errorCode);
     }
 }
 
 class ColorDensityPipeline extends OpenCvPipeline
 {
-    Telemetry telemetry;
-    private int threshold = 30;
+    // Constants
+    private final int threshold = 30;
+    private final int levelCount = 3;
+    // Instance Variables
+    private Telemetry telemetry;
+
 
     public ColorDensityPipeline(Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -81,40 +93,45 @@ class ColorDensityPipeline extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
-
+        // Debug for possible crashes
+        System.out.println("Entering Pipeline");
+        // Create a mat to put our threshold image into.
         Mat thresholdMat = new Mat();
-        // Get the average color for green and then add on the threshold, for the min value.
+        // Get the average color for green and then add on the green threshold.
         Scalar meanColor = Core.mean(input);
         Scalar min = new Scalar(0,meanColor.val[1]+threshold,0,0);
         Scalar max = new Scalar(150,255,150,255);
-        // Do the thresholding.
+        // Do the thresholding and put the result in the thresholdMat.
         Core.inRange(input, min, max,thresholdMat);
 
-        // Get size
+        // Get image size for splitting the image later.
         Size imageSize = thresholdMat.size();
 
+        // TO DO: COMBINE BRIGHTNESS DETECTION AND HIGHEST BRIGHTNESS
+
         //Split the image into 3 parts, and get their brightnesses.
-        // This could be improved by doing a for loop.
-        Rect leftRectCrop = new Rect(0, 0, (int)(imageSize.width/3), (int)imageSize.height);
-        Mat leftCropped = new Mat(thresholdMat, leftRectCrop);
-        double brightnessLeft = Core.mean(leftCropped).val[0];
+        double[] levelBrightnesses = new double[levelCount];
+        for (int level = 0; level < levelCount; level++) {
+            Rect rectCrop = new Rect((int)(imageSize.width/levelCount) * level, 0, (int)(imageSize.width/levelCount) * (level + 1), (int)imageSize.height);
+            Mat matCropped = new Mat(thresholdMat, rectCrop);
+            double brightness = Core.mean(matCropped).val[0];
 
-        Rect middleRectCrop = new Rect((int)(imageSize.width/3), 0, (int)(imageSize.width/3), (int)imageSize.height);
-        Mat middleCropped = new Mat(thresholdMat, middleRectCrop);
-        double brightnessMiddle = Core.mean(middleCropped).val[0];
-
-        Rect rightRectCrop = new Rect((int)(imageSize.width/3)*2, 0, (int)(imageSize.width/3), (int)imageSize.height);
-        Mat rightCropped = new Mat(thresholdMat, rightRectCrop);
-        double brightnessRight = Core.mean(rightCropped).val[0];
-
-        // Get which one is brightest
-        if (brightnessLeft > brightnessMiddle && brightnessLeft > brightnessRight) {
-            telemetry.addData("RESULT: ", "LEFT");
-        } else if (brightnessMiddle > brightnessRight) {
-            telemetry.addData("RESULT: ", "MIDDLE");
-        } else {
-            telemetry.addData("RESULT: ", "RIGHT");
+            levelBrightnesses[level] = brightness;
         }
+
+        // Get which one is brightest and how bright.
+        double brightestValue = 0;
+        int brightestLevel = 2;
+        for (int level = 0; level < levelCount; level++) {
+            if (levelBrightnesses[level] > brightestValue) {
+                brightestValue = levelBrightnesses[level];
+                brightestLevel = level;
+            }
+        }
+
+        telemetry.addData("HIGHEST BRIGHTNESS: ", brightestValue);
+        telemetry.addData("RESULT: ", brightestLevel);
+
 
         // print data
 //        telemetry.addData("Max Color: ", max);
@@ -125,7 +142,7 @@ class ColorDensityPipeline extends OpenCvPipeline
 //        telemetry.addData("Bright Left: ", brightnessLeft);
 
         telemetry.update();
-
+        System.out.println("Exiting Pipeline");
         return thresholdMat;
     }
 }
