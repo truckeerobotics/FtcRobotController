@@ -113,30 +113,28 @@ class ColorDensityPipeline extends OpenCvPipeline
             levelBrightnesses[level] = brightness;
         }
         telemetry.update();
-//
-//        // Get which one is brightest and how bright.
-//        double brightestValue = 0;
-//        int brightestLevel = 2;
-//        for (int level = 0; level < levelCount; level++) {
-//            if (levelBrightnesses[level] > brightestValue) {
-//                brightestValue = levelBrightnesses[level];
-//                brightestLevel = level;
-//            }
-//        }
-//
-//        telemetry.addData("HIGHEST BRIGHTNESS: ", brightestValue);
-//        telemetry.addData("RESULT: ", brightestLevel);
+
+        // Get which one is brightest and how bright.
+        double brightestValue = 0;
+        int brightestLevel = 2;
+        for (int level = 0; level < levelCount; level++) {
+            if (levelBrightnesses[level] > brightestValue) {
+                brightestValue = levelBrightnesses[level];
+                brightestLevel = level;
+            }
+        }
+
+        telemetry.addData("HIGHEST BRIGHTNESS: ", brightestValue);
+        telemetry.addData("RESULT: ", brightestLevel);
+        telemetry.addData("Memory: ",(Runtime.getRuntime().freeMemory())/1048576);
 
 
         // print data
-//        telemetry.addData("Max Color: ", max);
-//        telemetry.addData("Min Color: ", min);
-//        telemetry.addData("Mean Color: ", meanColor);
-//        telemetry.addData("Bright Right: ", brightnessRight);
-//        telemetry.addData("Bright Middle: ", brightnessMiddle);
-//        telemetry.addData("Bright Left: ", brightnessLeft);
+        telemetry.addData("Max Color: ", max);
+        telemetry.addData("Min Color: ", min);
+        telemetry.addData("Mean Color: ", meanColor);
 
-//        telemetry.update();
+        telemetry.update();
         System.out.println("Exiting Pipeline");
         return thresholdMat;
     }

@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import java.util.HashMap;
@@ -45,49 +44,54 @@ public class Lilboi extends LinearOpMode {
         map.put("controller1ButtonB", false);
         map.put("controller2ButtonB", false);
 
-        // default power
-        int intake = 0;
-
         //hardwaremap
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
         DcMotor motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
         DcMotor spinMotor = hardwareMap.dcMotor.get("spin");
-        DcMotor shoulderMotor = hardwareMap.dcMotor.get("shoulder");
-        DcMotor elbowMotor = hardwareMap.dcMotor.get("elbow");
+        DcMotor distance = hardwareMap.dcMotor.get("distance");
+        DcMotor height = hardwareMap.dcMotor.get("height");
+
         Servo intakeLeft = hardwareMap.servo.get("intakeLeft");
         Servo intakeRight = hardwareMap.servo.get("intakeRight");
 
         intakeRight.setDirection(Servo.Direction.REVERSE);
 
-        //set motor direction
-        motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFrontRight.setDirection(DcMotor.Direction.REVERSE);
+        motorBackRight.setDirection(DcMotor.Direction.REVERSE);
+        distance.setDirection(DcMotor.Direction.REVERSE);
 
-        // Setup shoulder
-        shoulderMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        double intakeLeftPower = 0;
+        double intakeRightPower = 1;
+
+        intakeRight.setPosition(intakeRightPower);
+        intakeLeft.setPosition(intakeLeftPower);
+
+        height.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
 
         if (isStopRequested()) return;
 
         while (opModeIsActive()) {
-            
-            //save gamepad stick positions to variables
-            double y = gamepad1.left_stick_y;
-            double x = gamepad1.right_stick_x * 1; // 1.1 counters imperfect strafing
-            double rx = -gamepad1.left_stick_x;
 
-            //Wheel power calculations
+            double y = -gamepad1.left_stick_y; // Remember, this is reversed!
+            double x = -gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
+            double rx = -gamepad1.right_stick_x;
+
+            // Denominator is the largest motor power (absolute value) or 1
+            // This ensures all the powers maintain the same ratio, but only when
+            // at least one is out of the range [-1, 1]
             double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-            double frontLeftPower = (y + x - rx) / denominator;
-            double backLeftPower = (y - x - rx) / denominator;
-            double frontRightPower = (y - x + rx) / denominator;
-            double backRightPower = (y + x + rx) / denominator;
+            double frontLeftPower = (y + x + rx) / denominator;
+            double backLeftPower = (y - x + rx) / denominator;
+            double frontRightPower = (y - x - rx) / denominator;
+            double backRightPower = (y + x - rx) / denominator;
+
             double spin = 0;
-            double shoulderPower = 0;
-            double elbowPower = 0;
+            double distancePower = 0;
+            double heightPower = 0;
 
             //carousel spinner
             if(gamepad1.left_bumper){
@@ -98,51 +102,32 @@ public class Lilboi extends LinearOpMode {
                 spin = 0;
             }
 
-            if(gamepad1.dpad_up){
-                shoulderPower = 0.25;
-            }else if(gamepad1.dpad_down){
-                shoulderPower = -0.25;
-            }else{
-                shoulderPower = 0;
+            distancePower = gamepad2.left_stick_y / 4;
+            heightPower = gamepad2.left_stick_x;
+
+            //open
+            if(onPush(gamepad2.x, "controller1ButtonX")){
+                intakeLeftPower = 0;
+                intakeRightPower = 1;
             }
 
-            if(gamepad1.dpad_right){
-                elbowPower = 0.5;
-            }else if(gamepad1.dpad_left){
-                elbowPower = -0.5;
-            }else {
-                elbowPower = 0;
+            //closed
+            if(onPush(gamepad2.b, "controller1ButtonB")) {
+                intakeLeftPower = 0.5;
+                intakeRightPower = 0.5;
             }
 
-            //toggle intake
-            if(onPush(gamepad2.x, "controller2ButtonX")) {
-                if (intake != 1) {
-                    intake = 1;
-                } else {
-                    intake = 0;
-                }
-            }
+            intakeRight.setPosition(intakeRightPower);
+            intakeLeft.setPosition(intakeLeftPower);
 
-            //toggle intake
-            if(onPush(gamepad2.b, "controller2ButtonB")) {
-                if (intake != -1) {
-                    intake = -1;
-                } else {
-                    intake = 0;
-                }
-            }
-            intakeRight.setPosition(intake);
-            intakeLeft.setPosition(intake);
-
-            shoulderMotor.setPower(shoulderPower);
-            elbowMotor.setPower(elbowPower);
             spinMotor.setPower(spin);
+            distance.setPower(distancePower);
+            height.setPower(heightPower);
             motorFrontLeft.setPower(frontLeftPower);
             motorBackLeft.setPower(backLeftPower);
             motorFrontRight.setPower(frontRightPower);
             motorBackRight.setPower(backRightPower);
 
-            telemetry.addData("Debug: ", shoulderMotor.getCurrentPosition());
             telemetry.addData("frontLeft: ", frontLeftPower);
             telemetry.addData("frontRight: ", frontRightPower);
             telemetry.addData("backLeft: ", backLeftPower);
