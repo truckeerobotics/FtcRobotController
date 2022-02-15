@@ -85,6 +85,7 @@ class ColorDensityPipeline extends OpenCvPipeline
     private final double thresholdConfirm = 0.7;
     // Instance Variables
     private Telemetry telemetry;
+    private int levelResult = -1;
 
 
     public ColorDensityPipeline(Telemetry telemetry) {
@@ -94,8 +95,13 @@ class ColorDensityPipeline extends OpenCvPipeline
     @Override
     public Mat processFrame(Mat input)
     {
-        // Debug for possible crashes
+        // Debug
         System.out.println("Entering Pipeline");
+
+        if (levelResult != -1) {
+            return input;
+        }
+
         // Create a mat to put our threshold image into.
         Mat thresholdMat = new Mat();
         // Get the average color for green and then add on the green threshold.
@@ -126,15 +132,15 @@ class ColorDensityPipeline extends OpenCvPipeline
         }
 
         if (sum * thresholdConfirm < brightestValue) {
-            telemetry.addData("RESULT: ", brightestLevel);
+            telemetry.addData("SUCCESSFUL, level result: : ", brightestLevel);
+            levelResult = brightestLevel;
         } else {
-            telemetry.addData("Failed, with sum:", sum);
-            telemetry.addData("Failed, with brightest value of:", brightestValue);
-            telemetry.addData("Failed, brightest level: ", brightestLevel);
+            telemetry.addData("FAILED, with sum:", sum);
+            telemetry.addData("FAILED, with brightest value of:", brightestValue);
+            telemetry.addData("FAILED, brightest level: ", brightestLevel);
         }
         telemetry.update();
 
-        telemetry.update();
         System.out.println("Exiting Pipeline");
         return thresholdMat;
     }
