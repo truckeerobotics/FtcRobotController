@@ -128,9 +128,9 @@ class ColorDensityPipeline extends OpenCvPipeline
                 brightestValue = brightness;
                 brightestLevel = level;
             }
-
         }
 
+        // Check brightest level if good enough to confirm successful result.
         if (sum * thresholdConfirm < brightestValue) {
             telemetry.addData("SUCCESSFUL, level result: : ", brightestLevel);
             levelResult = brightestLevel;
