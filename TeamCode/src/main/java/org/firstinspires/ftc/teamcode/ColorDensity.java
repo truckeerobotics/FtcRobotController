@@ -10,15 +10,10 @@ import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
-import org.tensorflow.lite.Interpreter;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 @Autonomous(name = "Color Density", group = "Concept")
 
@@ -110,36 +105,34 @@ class ColorDensityPipeline extends OpenCvPipeline
         // TO DO: COMBINE BRIGHTNESS DETECTION AND HIGHEST BRIGHTNESS
 
         //Split the image into 3 parts, and get their brightnesses.
-//        double[] levelBrightnesses = new double[levelCount];
-//        for (int level = 0; level < levelCount; level++) {
-//            Rect rectCrop = new Rect((int)(imageSize.width/levelCount) * level, 0, (int)(imageSize.width/levelCount) * (level + 1), (int)imageSize.height);
-//            Mat matCropped = new Mat(thresholdMat, rectCrop);
-//            double brightness = Core.mean(matCropped).val[0];
-//
-//            levelBrightnesses[level] = brightness;
-//        }
-//
-//        // Get which one is brightest and how bright.
-//        double brightestValue = 0;
-//        int brightestLevel = 2;
-//        for (int level = 0; level < levelCount; level++) {
-//            if (levelBrightnesses[level] > brightestValue) {
-//                brightestValue = levelBrightnesses[level];
-//                brightestLevel = level;
-//            }
-//        }
-//
-//        telemetry.addData("HIGHEST BRIGHTNESS: ", brightestValue);
-//        telemetry.addData("RESULT: ", brightestLevel);
+        double[] levelBrightnesses = new double[levelCount];
+        for (int level = 0; level < levelCount; level++) {
+            Rect rectCrop = new Rect((int)(imageSize.width/levelCount) * level, 0, (int)(imageSize.width/levelCount), (int)imageSize.height);
+            Mat matCropped = new Mat(thresholdMat, rectCrop);
+            double brightness = Core.mean(matCropped).val[0];
+            levelBrightnesses[level] = brightness;
+        }
+        telemetry.update();
+
+        // Get which one is brightest and how bright.
+        double brightestValue = 0;
+        int brightestLevel = 2;
+        for (int level = 0; level < levelCount; level++) {
+            if (levelBrightnesses[level] > brightestValue) {
+                brightestValue = levelBrightnesses[level];
+                brightestLevel = level;
+            }
+        }
+
+        telemetry.addData("HIGHEST BRIGHTNESS: ", brightestValue);
+        telemetry.addData("RESULT: ", brightestLevel);
+        telemetry.addData("Memory: ",(Runtime.getRuntime().freeMemory())/1048576);
 
 
         // print data
-//        telemetry.addData("Max Color: ", max);
-//        telemetry.addData("Min Color: ", min);
-//        telemetry.addData("Mean Color: ", meanColor);
-//        telemetry.addData("Bright Right: ", brightnessRight);
-//        telemetry.addData("Bright Middle: ", brightnessMiddle);
-//        telemetry.addData("Bright Left: ", brightnessLeft);
+        telemetry.addData("Max Color: ", max);
+        telemetry.addData("Min Color: ", min);
+        telemetry.addData("Mean Color: ", meanColor);
 
         telemetry.update();
         System.out.println("Exiting Pipeline");

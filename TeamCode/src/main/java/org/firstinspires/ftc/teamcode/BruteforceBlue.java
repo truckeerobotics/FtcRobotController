@@ -21,9 +21,9 @@ public class BruteforceBlue extends LinearOpMode {
     DcMotor spin = null;
     Servo armRotation = null;
 
-    static final double     COUNTS_PER_MOTOR_REV    = 28 ;    // eg: TETRIX Motor Encoder
+    static final double     COUNTS_PER_MOTOR_REV    = 28;    // eg: TETRIX Motor Encoder
     static final double     DRIVE_GEAR_REDUCTION    = 40.0 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 3.75;     // For figuring circumference
+    static final double     WHEEL_DIAMETER_INCHES   = 63.75;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double     DRIVE_SPEED             = 0.6;
@@ -49,7 +49,7 @@ public class BruteforceBlue extends LinearOpMode {
         waitForStart();
 
         if (isStopRequested()) return;
-        moveForward(DRIVE_SPEED, 3);
+        moveForward(DRIVE_SPEED, -3);
         strafeLeft(DRIVE_SPEED / 2, -40);
         spin.setPower(1);
         runtime.reset();

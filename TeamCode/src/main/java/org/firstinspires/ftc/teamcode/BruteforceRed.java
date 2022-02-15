@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -22,15 +21,16 @@ public class BruteforceRed extends LinearOpMode {
     DcMotor motorFrontRight = null;
     DcMotor motorBackRight = null;
     DcMotor spin = null;
-    Servo armRotation = null;
 
     public void calcPower(double y, double x, double rx){
-        //Wheel power calculations
+        //y is forward
+        //x is rotate
+        //rx is strafe
         double denominator = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
-        motorFrontLeft.setPower((y + x - rx) / denominator);
-        motorBackLeft.setPower((y - x - rx) / denominator);
-        motorFrontRight.setPower((y - x + rx) / denominator);
-        motorBackRight.setPower((y + x + rx) / denominator);
+        motorFrontLeft.setPower((y + x + rx) / denominator);
+        motorBackLeft.setPower((y - x + rx) / denominator);
+        motorFrontRight.setPower((y - x - rx) / denominator);
+        motorBackRight.setPower((y + x - rx) / denominator);
     }
 
     @Override
@@ -41,17 +41,12 @@ public class BruteforceRed extends LinearOpMode {
         motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
         motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
         spin = hardwareMap.dcMotor.get("spin");
-        armRotation = hardwareMap.servo.get("armRotation");
-
-
 
         motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
         spin.setDirection(DcMotorSimple.Direction.REVERSE);
 
         telemetry.addData("test", "test", runtime.seconds());
-
-        armRotation.setPosition(0.7);
 
 
         waitForStart();
@@ -67,7 +62,7 @@ public class BruteforceRed extends LinearOpMode {
         }
 
         // Step 2:  Strafe for 2.5 seconds
-        calcPower(0, FORWARD_SPEED, 0);
+        calcPower(0, 0, FORWARD_SPEED);
         runtime.reset();
         while (opModeIsActive() && (runtime.seconds() < 3)) {
             telemetry.addData("Path", "Leg 2: %2.5f S Elapsed", runtime.seconds());
