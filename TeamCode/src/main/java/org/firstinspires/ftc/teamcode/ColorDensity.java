@@ -119,7 +119,7 @@ class ColorDensityPipeline extends OpenCvPipeline
         double sum = 0;
 
         for (int level = 0; level < levelCount; level++) {
-            Rect rectCrop = new Rect((int)(imageSize.width/levelCount) * level, 0, (int)(imageSize.width/levelCount) * (level + 1), (int)imageSize.height);
+            Rect rectCrop = new Rect((int)(imageSize.width/levelCount) * level, 0, (int)(imageSize.width/levelCount), (int)imageSize.height);
             Mat matCropped = new Mat(thresholdMat, rectCrop);
             double brightness = Core.mean(matCropped).val[0];
 
