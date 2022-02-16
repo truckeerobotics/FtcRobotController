@@ -10,6 +10,11 @@ import java.util.HashMap;
 @TeleOp(name = "Lil Main Drive")
 public class Lilboi extends LinearOpMode {
 
+    private final double LateralSpeed = 0.6;
+    private final double StrafeSpeed = 0.7;
+    private final double RotationalSpeed = 0.6;
+
+
     //Define togglebind hashmap
     HashMap<String, Boolean> map=new HashMap<String, Boolean>();
 
@@ -44,7 +49,7 @@ public class Lilboi extends LinearOpMode {
         map.put("controller1ButtonB", false);
         map.put("controller2ButtonB", false);
 
-        //hardwaremap
+        //hardware map
         DcMotor motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
         DcMotor motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
         DcMotor motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
@@ -62,13 +67,14 @@ public class Lilboi extends LinearOpMode {
         motorBackRight.setDirection(DcMotor.Direction.REVERSE);
         distance.setDirection(DcMotor.Direction.REVERSE);
 
-        double intakeLeftPower = 0;
-        double intakeRightPower = 1;
+        double intakeLeftPower = 0.3;
+        double intakeRightPower = 0.3;
 
         intakeRight.setPosition(intakeRightPower);
         intakeLeft.setPosition(intakeLeftPower);
 
         height.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        distance.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         waitForStart();
 
@@ -76,9 +82,9 @@ public class Lilboi extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            double y = -gamepad1.left_stick_y; // Remember, this is reversed!
-            double x = -gamepad1.left_stick_x * 1.1; // Counteract imperfect strafing
-            double rx = -gamepad1.right_stick_x;
+            double y = -gamepad1.left_stick_y * LateralSpeed; // Remember, this is reversed!
+            double x = -gamepad1.left_stick_x * StrafeSpeed * 1.1; // Counteract imperfect strafing
+            double rx = -gamepad1.right_stick_x * RotationalSpeed;
 
             // Denominator is the largest motor power (absolute value) or 1
             // This ensures all the powers maintain the same ratio, but only when
@@ -103,18 +109,18 @@ public class Lilboi extends LinearOpMode {
             }
 
             distancePower = gamepad2.left_stick_y / 4;
-            heightPower = gamepad2.left_stick_x;
+            heightPower = gamepad2.left_stick_x * 1.1;
 
             //open
-            if(onPush(gamepad2.x, "controller1ButtonX")){
-                intakeLeftPower = 0;
+            if(onPush(gamepad2.x, "controller2ButtonX")){
+                intakeLeftPower = 1;
                 intakeRightPower = 1;
             }
 
             //closed
-            if(onPush(gamepad2.b, "controller1ButtonB")) {
-                intakeLeftPower = 0.5;
-                intakeRightPower = 0.5;
+            if(onPush(gamepad2.b, "controller2ButtonB")) {
+                intakeLeftPower = 0.3;
+                intakeRightPower = 0.3;
             }
 
             intakeRight.setPosition(intakeRightPower);
@@ -132,6 +138,8 @@ public class Lilboi extends LinearOpMode {
             telemetry.addData("frontRight: ", frontRightPower);
             telemetry.addData("backLeft: ", backLeftPower);
             telemetry.addData("backRight: ", backRightPower);
+            telemetry.addData("distanceArm: ", distancePower);
+            telemetry.addData("heightArm: ", heightPower);
             telemetry.addData("LB:", gamepad1.left_bumper);
             telemetry.addData("RB:", gamepad1.right_bumper);
 
