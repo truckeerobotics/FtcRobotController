@@ -42,8 +42,6 @@ public class BruteforceRed extends LinearOpMode {
         motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
         spin = hardwareMap.dcMotor.get("spin");
 
-        motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
         spin.setDirection(DcMotorSimple.Direction.REVERSE);
 
         telemetry.addData("test", "test", runtime.seconds());
