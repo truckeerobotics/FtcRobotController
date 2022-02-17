@@ -7,30 +7,68 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.openftc.easyopencv.OpenCvPipeline;
+
 
 @Autonomous(name = "Red Side #1 - Smart")
 
 public class SmartRed1 extends LinearOpMode {
 
+    //
 
+
+
+    /// CONSTANTS ///
+
+    // Claw constant (s)
+    private final double maxClawServo = 0.85;
+    private final double minClawServo = 0.3;
+
+    // Computer vision constants
+    private final int cameraPixelWidth = 1920;
+    private final int cameraPixelHeight = 1080;
+
+    // Encoder constants
+    static final double     MULTI_EXTRA             = 1.6;    //
+    static final double     COUNTS_PER_MOTOR_REV    = 7;    //
+    static final double     DRIVE_GEAR_REDUCTION    = 60.0 ;     //
+    static final double     WHEEL_DIAMETER_INCHES   = 4;     //
+    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
+            (WHEEL_DIAMETER_INCHES * 3.1415) * MULTI_EXTRA;
+    static final double     DRIVE_SPEED             = 0.3;
+    static final double     TURN_SPEED              = 0.5;
+
+    /// INSTANCE VARIABLES ///
+
+    // Timer
 
     private ElapsedTime runtime = new ElapsedTime();
+
+    // Motors and Hardware
 
     DcMotor motorFrontLeft = null;
     DcMotor motorBackLeft = null;
     DcMotor motorFrontRight = null;
     DcMotor motorBackRight = null;
+    DcMotor motorDistance = null;
+    DcMotor motorHeight = null;
     DcMotor spin = null;
-    Servo armRotation = null;
+    Servo clawLeft = null;
+    Servo clawRight = null;
 
-    static final double     MULTI_EXTRA             = 1.6;    // eg: TETRIX Motor Encoder
-    static final double     COUNTS_PER_MOTOR_REV    = 7;    // eg: TETRIX Motor Encoder
-    static final double     DRIVE_GEAR_REDUCTION    = 60.0 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 4;     // For figuring circumference
-    static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * 3.1415) * MULTI_EXTRA;
-    static final double     DRIVE_SPEED             = 0.3;
-    static final double     TURN_SPEED              = 0.5;
+    // Computer vision
+    private ColorDensityPipelineRED pipeline;
+    private int level = 2;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -40,16 +78,109 @@ public class SmartRed1 extends LinearOpMode {
         motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
         motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
         motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
+        motorDistance = hardwareMap.dcMotor.get("distance");
+        motorHeight = hardwareMap.dcMotor.get("height");
         spin = hardwareMap.dcMotor.get("spin");
+        clawLeft = hardwareMap.servo.get("intakeLeft");
+        clawRight = hardwareMap.servo.get("intakeRight");
+
+        clawRight.setDirection(Servo.Direction.REVERSE);
 
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
         /// SETUP COMPUTER VISION ///
 
+        // Get the camera and configure it
+        OpenCvCamera camera = getExternalCamera();
+
+        // Create the pipeline and give it access to debugging
+        pipeline = new ColorDensityPipelineRED(telemetry);
+
+        // Give the camera the pipeline.
+        camera.setPipeline(pipeline);
+
+        // Open up the camera. Send to inCameraOpenSuccessResult or inCameraOpenErrorResult depending on if opening was successful
+        // This is an Asynchronous function call, so when it is done opening it will call the function depending on result.
+        camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override public void onOpened() { inCameraOpenSuccessResult(camera); }
+            @Override public void onError(int errorCode) { inCameraOpenErrorResult(errorCode); }
+        });
+
+        /// WAIT FOR SUCCESSFUL COMPUTER VISION RESULT ///
+        // Run until opMode starts
+        while (opModeIsActive() == false) {
+            // Wait 5 seconds to check for result
+            while (runtime.seconds() < 5) {
+            }
+            runtime.reset();
+            // Check if pipeline was success, if so escape.
+            if (pipeline.getLevel() != -1) {
+                level = pipeline.getLevel();
+                telemetry.addData("Pipeline Successful Level", level);
+                telemetry.addData("Status", "Breaking Loop Successfully");
+                telemetry.update();
+                break;
+            }
+            // Tell driver team that no level results yet (QUITE BAD, MOVE ROBOT IF CHANCE GIVEN?)
+            telemetry.addData("Passed 5 Seconds", "No Level Results Yet");
+            telemetry.update();
+        }
+        // Reset to default claw position
+        moveClaws(false, 500);
 
         waitForStart();
 
+        /// RUN MOVEMENT STEPS ///
+
+        // Tell driver team what is going on :D
+        telemetry.addData("Started Successfully with Level", level);
+        telemetry.update();
+
+        // Capture placed cube.
+        moveClaws(true, 1500);
+
+        // Raise up arm
+
+        // Return rather than crash out if a stop is requested.
+        if (isStopRequested()) {
+            return;
+        }
+
+    }
+
+
+    /// COLOR DENSITY SETUP HELPERS ///
+
+    // Get the webcam (External camera)
+    public OpenCvCamera getExternalCamera() {
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
+        return OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
+    }
+
+    // If the camera was opened up, then start streaming.
+    public void inCameraOpenSuccessResult(OpenCvCamera camera) {
+        camera.startStreaming(cameraPixelWidth, cameraPixelHeight, OpenCvCameraRotation.UPRIGHT);
+    }
+
+    // If camera had an error when trying to be opened.
+    public void inCameraOpenErrorResult(int errorCode) {
+        System.out.println("Error occurred, check logcat if possible. The error code is " + errorCode);
+    }
+
+    /// MOVEMENT API.
+    // TO DO: Put in separate class
+
+    public void moveClaws(boolean close, long delayAfterMilliSeconds) {
+        double clawPosition = minClawServo;
+        if (close) {
+            clawPosition = maxClawServo;
+        }
+        clawRight.setPosition(clawPosition);
+        clawLeft.setPosition(clawPosition);
+        sleep(delayAfterMilliSeconds);
     }
 
     public void spinSpinner(double seconds, boolean clockwise) {
@@ -82,6 +213,14 @@ public class SmartRed1 extends LinearOpMode {
         encoderDrive(speed, degrees * -1, degrees * -1, degrees, degrees);
     }
 
+    // WIP, NOT DONE
+    public void raiseArm(double speed, double inches) {
+
+    }
+
+
+    /// ENCODER API ///
+    // TO DO: Put in separate class
     /*
      *  Method to perform a relative move, based on encoder counts.
      *  Encoders are not reset as the move is based on the current position.
@@ -152,5 +291,78 @@ public class SmartRed1 extends LinearOpMode {
 
             //  sleep(250);   // optional pause after each move
         }
+    }
+}
+
+// COLOR DENSITY
+class ColorDensityPipelineRED extends OpenCvPipeline
+{
+    // Constants
+    private final int threshold = 30;
+    private final int levelCount = 3;
+    private final double thresholdConfirm = 0.7;
+    // Instance Variables
+    private Telemetry telemetry;
+    private int levelResult = -1;
+
+
+    public ColorDensityPipelineRED(Telemetry telemetry) {
+        this.telemetry = telemetry;
+    }
+
+    public int getLevel() {
+        return levelResult;
+    }
+
+    @Override
+    public Mat processFrame(Mat input)
+    {
+        if (levelResult != -1) {
+            return input;
+        }
+
+        System.out.println("Entering Pipeline");
+
+        // Create a mat to put our threshold image into.
+        Mat thresholdMat = new Mat();
+        // Get the average color for green and then add on the green threshold.
+        Scalar meanColor = Core.mean(input);
+        Scalar min = new Scalar(0,meanColor.val[1]+threshold,0,0);
+        Scalar max = new Scalar(150,255,150,255);
+        // Do the thresholding and put the result in the thresholdMat.
+        Core.inRange(input, min, max,thresholdMat);
+
+        // Get image size for splitting the image later.
+        Size imageSize = thresholdMat.size();
+
+        double brightestValue = 0;
+        int brightestLevel = 2;
+        double sum = 0;
+
+        for (int level = 0; level < levelCount; level++) {
+            Rect rectCrop = new Rect((int)(imageSize.width/levelCount) * level, 0, (int)(imageSize.width/levelCount), (int)imageSize.height);
+            Mat matCropped = new Mat(thresholdMat, rectCrop);
+            double brightness = Core.mean(matCropped).val[0];
+
+            sum += brightness;
+            if (brightness > brightestValue) {
+                brightestValue = brightness;
+                brightestLevel = level;
+            }
+        }
+
+        // Check brightest level if good enough to confirm successful result.
+        if (sum * thresholdConfirm < brightestValue) {
+            telemetry.addData("SUCCESSFUL, level result: : ", brightestLevel);
+            levelResult = brightestLevel;
+        } else {
+            telemetry.addData("FAILED, with sum:", sum);
+            telemetry.addData("FAILED, with brightest value of:", brightestValue);
+            telemetry.addData("FAILED, brightest level: ", brightestLevel);
+        }
+        telemetry.update();
+
+        System.out.println("Exiting Pipeline");
+        return thresholdMat;
     }
 }

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -16,7 +17,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 @Autonomous(name = "Color Density", group = "Concept")
-
+@Disabled
 public class ColorDensity extends LinearOpMode {
 
     // Constants
@@ -45,13 +46,8 @@ public class ColorDensity extends LinearOpMode {
             @Override public void onError(int errorCode) { inCameraOpenErrorResult(errorCode); }
         });
 
-        // Main Loop
         waitForStart();
-        if (opModeIsActive()) {
-            while (opModeIsActive()) {
-
-            }
-        }
+        if (isStopRequested()) return;
     }
 
     // Get the webcam (External camera)

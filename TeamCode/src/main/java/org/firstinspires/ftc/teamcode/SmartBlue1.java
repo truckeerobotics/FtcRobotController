@@ -19,7 +19,6 @@ public class SmartBlue1 extends LinearOpMode {
     DcMotor motorFrontRight = null;
     DcMotor motorBackRight = null;
     DcMotor spin = null;
-    Servo armRotation = null;
 
     static final double     MULTI_EXTRA             = 1.6;    // eg: TETRIX Motor Encoder
     static final double     COUNTS_PER_MOTOR_REV    = 7;    // eg: TETRIX Motor Encoder
