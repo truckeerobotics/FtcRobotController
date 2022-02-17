@@ -8,8 +8,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-@Autonomous(name = "Blue Side - Bruteforce")
-public class BruteforceBlue extends LinearOpMode {
+@Autonomous(name = "Red Side #1 - Smart")
+
+public class SmartRed1 extends LinearOpMode {
+
 
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -32,7 +34,8 @@ public class BruteforceBlue extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        //Hardware map
+        /// IMPORT AND CONFIGURE ALL HARDWARE ///
+
         motorFrontLeft = hardwareMap.dcMotor.get("motorFrontLeft");
         motorBackLeft = hardwareMap.dcMotor.get("motorBackLeft");
         motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
@@ -42,9 +45,10 @@ public class BruteforceBlue extends LinearOpMode {
         motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        waitForStart();
+        /// SETUP COMPUTER VISION ///
 
-        if (isStopRequested()) return;
+
+        waitForStart();
 
     }
 
