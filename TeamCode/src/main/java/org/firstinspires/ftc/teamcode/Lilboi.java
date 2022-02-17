@@ -10,15 +10,38 @@ import java.util.HashMap;
 @TeleOp(name = "Lil Main Drive")
 public class Lilboi extends LinearOpMode {
 
+    // Constants for controlling the robot
+    // Driving
     private final double LateralSpeed = 0.6;
     private final double StrafeSpeed = 0.7;
     private final double RotationalSpeed = 0.6;
 
+    // Grabber/intake
+    private final double maxIntake = 0.85;
+    private final double minIntake = 0.3;
+    private final double manualIntakeSpeed = 0.01;
 
-    //Define togglebind hashmap
+    // Smart driving
+    private final double drivingPowerForwardDelta = 0.02;
+    private final double drivingPowerBackwardDelta = 0.02;
+    private final double drivingPowerStrafeDelta = 0.03;
+    private final double drivingPowerRotationDelta = 0.05;
+
+    private final double drivingPowerDifferenceCutoff = 0.1;
+
+    // Control variables used for making driving *smooth*.
+    private double yTarget = 0;
+    private double xTarget = 0;
+    private double rxTarget = 0;
+
+    private double yCurrent = 0;
+    private double xCurrent = 0;
+    private double rxCurrent = 0;
+
+    // Used for on-push to keep track of pushed buttons.
     HashMap<String, Boolean> map=new HashMap<String, Boolean>();
 
-    //onpush function
+    // Helper function with a hashmap to do things when a button is pressed rather than held.
     boolean onPush(boolean button, String buttonName){
         //loop though toggle hashmap
         for (HashMap.Entry<String, Boolean> entry : map.entrySet()) {
@@ -67,11 +90,10 @@ public class Lilboi extends LinearOpMode {
         motorBackRight.setDirection(DcMotor.Direction.REVERSE);
         distance.setDirection(DcMotor.Direction.REVERSE);
 
-        double intakeLeftPower = 0.3;
-        double intakeRightPower = 0.3;
+        double intakePower = minIntake;
 
-        intakeRight.setPosition(intakeRightPower);
-        intakeLeft.setPosition(intakeLeftPower);
+        intakeRight.setPosition(intakePower);
+        intakeLeft.setPosition(intakePower);
 
         height.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         distance.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -82,9 +104,57 @@ public class Lilboi extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            double y = -gamepad1.left_stick_y * LateralSpeed; // Remember, this is reversed!
-            double x = -gamepad1.left_stick_x * StrafeSpeed * 1.1; // Counteract imperfect strafing
-            double rx = -gamepad1.right_stick_x * RotationalSpeed;
+            // Smart/Smooth driving logic
+
+            yTarget = -gamepad1.left_stick_y * LateralSpeed; // Remember, this is reversed!
+            xTarget = -gamepad1.left_stick_x * StrafeSpeed * 1.1; // Counteract imperfect strafing
+            rxTarget = -gamepad1.right_stick_x * RotationalSpeed;
+
+            // If difference cutoff is not reached, then move current/actual movement to target movement.
+            if (!(Math.abs(yTarget - yCurrent) < drivingPowerDifferenceCutoff)) {
+                if (yTarget > yCurrent) {
+                    yCurrent += drivingPowerForwardDelta;
+                } else {
+                    yCurrent -= drivingPowerBackwardDelta;
+                }
+            } else {
+                yCurrent = yTarget;
+            }
+
+            if (!(Math.abs(xTarget - xCurrent) < drivingPowerDifferenceCutoff)) {
+                if (xTarget > xCurrent) {
+                    xCurrent += drivingPowerStrafeDelta;
+                } else {
+                    xCurrent -= drivingPowerStrafeDelta;
+                }
+            } else {
+                xCurrent = xTarget;
+            }
+
+            if (!(Math.abs(rxTarget - rxCurrent) < drivingPowerDifferenceCutoff)) {
+                if (rxTarget > rxCurrent) {
+                    rxCurrent += drivingPowerRotationDelta;
+                } else {
+                    rxCurrent -= drivingPowerRotationDelta;
+                }
+            } else {
+                rxCurrent = rxTarget;
+            }
+
+            // Debug
+            telemetry.addData("xTarget: ", xTarget);
+            telemetry.addData("yTarget: ", yTarget);
+            telemetry.addData("rxTarget: ", rxTarget);
+
+            telemetry.addData("xCurrent: ", xCurrent);
+            telemetry.addData("yCurrent: ", yCurrent);
+            telemetry.addData("rxCurrent: ", rxCurrent);
+
+            // Take things from smart/smooth driving and implement the intended axial changes.
+
+            double y = yCurrent;
+            double x = xCurrent;
+            double rx = rxCurrent;
 
             // Denominator is the largest motor power (absolute value) or 1
             // This ensures all the powers maintain the same ratio, but only when
@@ -108,23 +178,33 @@ public class Lilboi extends LinearOpMode {
                 spin = 0;
             }
 
-            distancePower = gamepad2.left_stick_y / 4;
-            heightPower = gamepad2.left_stick_x * 1.1;
+            distancePower = gamepad2.left_stick_y / 5;
+            heightPower = gamepad2.right_stick_y * -1.1;
 
-            //open
+            // Open intake on push of X on controller 2
             if(onPush(gamepad2.x, "controller2ButtonX")){
-                intakeLeftPower = 1;
-                intakeRightPower = 1;
+                intakePower = maxIntake;
             }
 
-            //closed
+            // Close intake on push of B on controller 2
             if(onPush(gamepad2.b, "controller2ButtonB")) {
-                intakeLeftPower = 0.3;
-                intakeRightPower = 0.3;
+                intakePower = minIntake;
             }
 
-            intakeRight.setPosition(intakeRightPower);
-            intakeLeft.setPosition(intakeLeftPower);
+            if (gamepad2.a) {
+                if (intakePower > minIntake) {
+                    intakePower -= manualIntakeSpeed;
+                }
+            }
+            if (gamepad2.y) {
+                if (intakePower < maxIntake) {
+                    intakePower += manualIntakeSpeed;
+                }
+            }
+
+
+            intakeRight.setPosition(intakePower);
+            intakeLeft.setPosition(intakePower);
 
             spinMotor.setPower(spin);
             distance.setPower(distancePower);
@@ -140,6 +220,7 @@ public class Lilboi extends LinearOpMode {
             telemetry.addData("backRight: ", backRightPower);
             telemetry.addData("distanceArm: ", distancePower);
             telemetry.addData("heightArm: ", heightPower);
+            telemetry.addData("Arm Encoders: ", "distance " + distance.getCurrentPosition() + " height " + height.getCurrentPosition());
             telemetry.addData("LB:", gamepad1.left_bumper);
             telemetry.addData("RB:", gamepad1.right_bumper);
 
