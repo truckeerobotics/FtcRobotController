@@ -23,9 +23,9 @@ public class Lilboi extends LinearOpMode {
 
     // Smart driving
     private final double drivingPowerForwardDelta = 0.02;
-    private final double drivingPowerBackwardDelta = 0.02;
+    private final double drivingPowerBackwardDelta = 0.0175;
     private final double drivingPowerStrafeDelta = 0.03;
-    private final double drivingPowerRotationDelta = 0.05;
+    private final double drivingPowerRotationDelta = 0.04;
 
     private final double drivingPowerDifferenceCutoff = 0.1;
 

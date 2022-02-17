@@ -21,12 +21,13 @@ public class BruteforceBlue extends LinearOpMode {
     DcMotor spin = null;
     Servo armRotation = null;
 
-    static final double     COUNTS_PER_MOTOR_REV    = 28;    // eg: TETRIX Motor Encoder
-    static final double     DRIVE_GEAR_REDUCTION    = 40.0 ;     // This is < 1.0 if geared UP
-    static final double     WHEEL_DIAMETER_INCHES   = 63.75;     // For figuring circumference
+    static final double     MULTI_EXTRA             = 1.6;    // eg: TETRIX Motor Encoder
+    static final double     COUNTS_PER_MOTOR_REV    = 7;    // eg: TETRIX Motor Encoder
+    static final double     DRIVE_GEAR_REDUCTION    = 60.0 ;     // This is < 1.0 if geared UP
+    static final double     WHEEL_DIAMETER_INCHES   = 4;     // For figuring circumference
     static final double     COUNTS_PER_INCH         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_INCHES * 3.1415);
-    static final double     DRIVE_SPEED             = 0.6;
+            (WHEEL_DIAMETER_INCHES * 3.1415) * MULTI_EXTRA;
+    static final double     DRIVE_SPEED             = 0.3;
     static final double     TURN_SPEED              = 0.5;
 
     @Override
@@ -37,39 +38,44 @@ public class BruteforceBlue extends LinearOpMode {
         motorFrontRight = hardwareMap.dcMotor.get("motorFrontRight");
         motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
         spin = hardwareMap.dcMotor.get("spin");
-        armRotation = hardwareMap.servo.get("armRotation");
 
-
-        motorFrontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        spin.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        armRotation.setPosition(0.7);
 
         waitForStart();
 
         if (isStopRequested()) return;
-        moveForward(DRIVE_SPEED, -3);
-        strafeLeft(DRIVE_SPEED / 2, -40);
-        spin.setPower(1);
+
+    }
+
+    public void spinSpinner(double seconds, boolean clockwise) {
         runtime.reset();
-        while (opModeIsActive() && (runtime.seconds() < 3)) {
+        if (clockwise) {
+            spin.setPower(1);
+        } else {
+            spin.setPower(-1);
+        }
+        runtime.reset();
+        while (opModeIsActive() && (runtime.seconds() < seconds)) {
             telemetry.addData("Spinning: ", "Spinning!");
             telemetry.update();
         }
         spin.setPower(0);
-        moveForward(DRIVE_SPEED, -15);
+        runtime.reset();
     }
+
     public void moveForward(double speed, double inches){
-        encoderDrive(speed, inches * -1, inches * -1, inches * -1, inches * -1);
+        encoderDrive(speed, inches, inches, inches, inches);
     }
 
     public void strafeLeft(double speed, double inches){
+        inches *= 1.36; // Strafing is slower than normal driving.
         encoderDrive(speed, inches * -1, inches, inches, inches * -1);
     }
 
-    public void rotate(double speed, double inches){
-        encoderDrive(speed, inches * -1, inches * -1, inches, inches);
+    public void rotate(double speed, double degrees){
+        degrees *= 0.1945; // Turn inches to degrees
+        encoderDrive(speed, degrees * -1, degrees * -1, degrees, degrees);
     }
 
     /*
