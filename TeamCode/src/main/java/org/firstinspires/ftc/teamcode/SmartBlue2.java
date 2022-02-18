@@ -20,7 +20,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 
-@Autonomous(name = "Blue Side #1 - Smart")
+@Autonomous(name = "Blue Side #2 - Smart")
 public class SmartBlue2 extends LinearOpMode {
 
     /// CONSTANTS ///
@@ -174,7 +174,7 @@ public class SmartBlue2 extends LinearOpMode {
 
         if (level == 0) {
             levelHeightSetter = 4;
-            levelDistanceSetter = 1.5;
+            levelDistanceSetter = 1.7;
         } else if (level == 1) {
             levelHeightSetter = 10;
             levelDistanceSetter = 4;
@@ -187,19 +187,19 @@ public class SmartBlue2 extends LinearOpMode {
         finishedDriving1 = false;
         new Thread(() -> {
             setArm(1, levelHeight,2);
-            sleep(250);
             while (!finishedDriving1) {
 
             }
-            moveForward(0.2,6);
+            telemetry.addData("In", "in");
+            telemetry.update();
+            moveForward(0.1,6);
             setArm(1, levelHeight,levelDistance);
             moveClaws(false, 1000);
             finishedScoring = true;
         }).start();
-        moveForward(0.2,4);
-        strafeLeft(0.125, 10);
-        rotate(0.25,25);
-        moveForward(0.25,17);
+        moveForward(0.1,4);
+        rotate(0.1,-30);
+        moveForward(0.1,17);
         finishedDriving1 = true;
 
         runtime.reset();
@@ -210,19 +210,12 @@ public class SmartBlue2 extends LinearOpMode {
 
         // Move it back and prepare for next step
         setArm(1, levelHeight,0.5);
-        moveForward(0.3, -8);
+        moveForward(0.3,-8);
         setArm(1, 6,0.25);
-        clawLeft.setPosition(0.1);
-        clawRight.setPosition(0.1);
-
-        // Go to ducks
-        rotate(0.55, -125);
-        moveForward(0.5, 36);
-        spinSpinner(3, true);
-
-        // Park
-        rotate(0.75, 5);
-        strafeLeft(0.75, 17);
+        rotate(0.3, 120);
+        moveForward(0.75, 40);
+        moveForward(0.2, 10);
+        setArm(1, 3,0);
 
         while(opModeIsActive()){
         }
@@ -257,6 +250,11 @@ public class SmartBlue2 extends LinearOpMode {
     // TO DO: Put in separate class
 
     public void moveClaws(boolean close, long delayAfterMilliSeconds) {
+
+        if (!opModeIsActive()) {
+            return;
+        }
+
         double clawPosition = minClawServo;
         if (close) {
             clawPosition = maxClawServo;
@@ -267,6 +265,9 @@ public class SmartBlue2 extends LinearOpMode {
     }
 
     public void spinSpinner(double seconds, boolean clockwise) {
+        if (!opModeIsActive()) {
+            return;
+        }
         runtime.reset();
         if (clockwise) {
             spin.setPower(1);

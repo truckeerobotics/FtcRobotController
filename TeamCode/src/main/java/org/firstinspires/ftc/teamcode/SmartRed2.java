@@ -7,21 +7,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.core.Size;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvPipeline;
 
 
-@Autonomous(name = "Blue Side #1 - Smart")
-public class SmartBlue1 extends LinearOpMode {
+@Autonomous(name = "Blue Side #2 - Smart")
+public class SmartRed2 extends LinearOpMode {
 
     /// CONSTANTS ///
 
@@ -64,7 +57,7 @@ public class SmartBlue1 extends LinearOpMode {
     Servo clawRight = null;
 
     // Computer vision
-    private ColorDensityPipelineBLUE pipeline;
+    private ColorDensityPipelineRED pipeline;
     private int level = 2;
 
     // Start Encoder Level
@@ -101,7 +94,7 @@ public class SmartBlue1 extends LinearOpMode {
         OpenCvCamera camera = getExternalCamera();
 
         // Create the pipeline and give it access to debugging
-        pipeline = new ColorDensityPipelineBLUE(telemetry);
+        pipeline = new ColorDensityPipelineRED(telemetry);
 
         // Give the camera the pipeline.
         camera.setPipeline(pipeline);
@@ -174,7 +167,7 @@ public class SmartBlue1 extends LinearOpMode {
 
         if (level == 0) {
             levelHeightSetter = 4;
-            levelDistanceSetter = 1.5;
+            levelDistanceSetter = 1.7;
         } else if (level == 1) {
             levelHeightSetter = 10;
             levelDistanceSetter = 4;
@@ -187,19 +180,19 @@ public class SmartBlue1 extends LinearOpMode {
         finishedDriving1 = false;
         new Thread(() -> {
             setArm(1, levelHeight,2);
-            sleep(250);
             while (!finishedDriving1) {
 
             }
-            moveForward(0.2,6);
+            telemetry.addData("In", "in");
+            telemetry.update();
+            moveForward(0.1,6);
             setArm(1, levelHeight,levelDistance);
             moveClaws(false, 1000);
             finishedScoring = true;
         }).start();
-        moveForward(0.2,4);
-        strafeLeft(0.125, 10);
-        rotate(0.25,25);
-        moveForward(0.25,17);
+        moveForward(0.1,4);
+        rotate(0.1,30);
+        moveForward(0.1,17);
         finishedDriving1 = true;
 
         runtime.reset();
@@ -210,19 +203,12 @@ public class SmartBlue1 extends LinearOpMode {
 
         // Move it back and prepare for next step
         setArm(1, levelHeight,0.5);
-        moveForward(0.3, -8);
+        moveForward(0.3,-8);
         setArm(1, 6,0.25);
-        clawLeft.setPosition(0.1);
-        clawRight.setPosition(0.1);
-
-        // Go to ducks
-        rotate(0.55, -125);
-        moveForward(0.5, 36);
-        spinSpinner(3, true);
-
-        // Park
-        rotate(0.75, 5);
-        strafeLeft(0.75, 17);
+        rotate(0.3, -120);
+        moveForward(0.75, 40);
+        moveForward(0.2, 10);
+        setArm(1, 3,0);
 
         while(opModeIsActive()){
         }
@@ -257,9 +243,11 @@ public class SmartBlue1 extends LinearOpMode {
     // TO DO: Put in separate class
 
     public void moveClaws(boolean close, long delayAfterMilliSeconds) {
+
         if (!opModeIsActive()) {
             return;
         }
+
         double clawPosition = minClawServo;
         if (close) {
             clawPosition = maxClawServo;
@@ -460,90 +448,5 @@ public class SmartBlue1 extends LinearOpMode {
 
             //sleep(2500);   // optional pause after each move
         }
-    }
-}
-
-// COLOR DENSITY
-class ColorDensityPipelineBLUE extends OpenCvPipeline
-{
-    // Constants
-    private final int threshold = 35;
-    private final int levelCount = 3;
-    private final double thresholdConfirm = 0.7;
-    private int failedDelayDefault = 10;
-    // Instance Variables
-    private Telemetry telemetry;
-    private int levelResult = -1;
-
-    private int failedDelayRemaining = 0;
-
-
-    public ColorDensityPipelineBLUE(Telemetry telemetry) {
-        this.telemetry = telemetry;
-    }
-
-    public int getLevel() {
-        return levelResult;
-    }
-
-    @Override
-    public Mat processFrame(Mat input)
-    {
-        if (levelResult != -1) {
-            return input;
-        }
-        if (failedDelayRemaining > 0) {
-            failedDelayRemaining--;
-            return input;
-        }
-
-        System.out.println("Entering Pipeline");
-
-        // Create a mat to put our threshold image into.
-        Mat thresholdMat = new Mat();
-        // Get the average color for green and then add on the green threshold.
-        Scalar meanColor = Core.mean(input);
-        Scalar min = new Scalar(0,meanColor.val[1]+threshold,0,0);
-        Scalar max = new Scalar(150,255,150,255);
-        // Do the thresholding and put the result in the thresholdMat.
-        Core.inRange(input, min, max,thresholdMat);
-
-        // Get image size for splitting the image later.
-        Size imageSize = thresholdMat.size();
-
-        double brightestValue = 0;
-        int brightestLevel = 2;
-        double sum = 0;
-
-        for (int level = 0; level < levelCount; level++) {
-            Rect rectCrop = new Rect((int)(imageSize.width/levelCount) * level, 0, (int)(imageSize.width/levelCount), (int)imageSize.height);
-            Mat matCropped = new Mat(thresholdMat, rectCrop);
-            double brightness = Core.mean(matCropped).val[0];
-
-            sum += brightness;
-            if (brightness > brightestValue) {
-                brightestValue = brightness;
-                brightestLevel = level;
-            }
-        }
-
-        // get REAL brighest level by inverting
-        brightestLevel = Math.abs(brightestLevel - 2);
-
-        // Check brightest level if good enough to confirm successful result.
-        if (sum * thresholdConfirm < brightestValue) {
-            telemetry.addData("SUCCESSFUL, level result: : ", brightestLevel);
-            levelResult = brightestLevel;
-        } else {
-            failedDelayRemaining = failedDelayDefault;
-            telemetry.addData("FAILED, with sum:", sum);
-            telemetry.addData("FAILED, with brightest value of:", brightestValue);
-            telemetry.addData("FAILED, brightest level: ", brightestLevel);
-        }
-        telemetry.update();
-
-
-        System.out.println("Exiting Pipeline");
-        return thresholdMat;
     }
 }

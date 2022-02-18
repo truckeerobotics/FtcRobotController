@@ -263,6 +263,9 @@ public class SmartRed1 extends LinearOpMode {
     // TO DO: Put in separate class
 
     public void moveClaws(boolean close, long delayAfterMilliSeconds) {
+        if (!opModeIsActive()) {
+            return;
+        }
         double clawPosition = minClawServo;
         if (close) {
             clawPosition = maxClawServo;
@@ -273,6 +276,9 @@ public class SmartRed1 extends LinearOpMode {
     }
 
     public void spinSpinner(double seconds, boolean clockwise) {
+        if (!opModeIsActive()) {
+            return;
+        }
         runtime.reset();
         if (clockwise) {
             spin.setPower(1);
