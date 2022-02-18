@@ -75,6 +75,7 @@ public class SmartRed1 extends LinearOpMode {
 
     // Used for multi-threading
     private static boolean finishedScoring = false;
+    private static boolean finishedDriving1 = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -165,22 +166,26 @@ public class SmartRed1 extends LinearOpMode {
 
         // Raise up arm
         double levelHeightSetter = 15.85; //15.85 top level (level 2)
-        double levelDistanceSetter = 3.5; //3 top level (level 2)
+        double levelDistanceSetter = 3.1; //3 top level (level 2)
 
-//        if (level == 0) {
-//            levelHeightSetter = 9;
-//            levelDistanceSetter = 2;
-//        } else if (level == 1) {
-//            levelHeightSetter = 3;
-//            levelDistanceSetter = 0.5;
-//        }
+        if (level == 0) {
+            levelHeightSetter = 4;
+            levelDistanceSetter = 1.5;
+        } else if (level == 1) {
+            levelHeightSetter = 10;
+            levelDistanceSetter = 4;
+        }
 
         final double levelHeight = levelHeightSetter; //15.85 top level (level 2)
         final double levelDistance = levelDistanceSetter; //3 top level (level 2)
 
+        finishedDriving1 = false;
         new Thread(() -> {
             setArm(1, levelHeight,2);
             sleep(250);
+            while (!finishedDriving1) {
+
+            }
             moveForward(0.2,6);
             setArm(1, levelHeight,levelDistance);
             moveClaws(false, 1000);
@@ -189,6 +194,7 @@ public class SmartRed1 extends LinearOpMode {
         moveForward(0.2,4);
         rotate(0.25,-35);
         moveForward(0.25,16);
+        finishedDriving1 = true;
 
         runtime.reset();
         while(!finishedScoring && (runtime.seconds() < 11)) {
@@ -201,18 +207,20 @@ public class SmartRed1 extends LinearOpMode {
         setArm(1, levelHeight-2,0.5);
         moveForward(0.3, -8);
         setArm(1, 6,0.25);
-        clawLeft.setPosition(0);
-        clawRight.setPosition(0);
+        clawLeft.setPosition(0.1);
+        clawRight.setPosition(0.1);
 
         // Go to ducks
         rotate(0.5, 150);
-        moveForward(0.5, 25);
-        rotate(0.6, 70);
-        strafeLeft(0.6, -15);
+        moveForward(0.5, 24);
+        rotate(0.6, 63);
+        strafeLeft(0.6, -13.4);
         spinSpinner(3, false);
 
         // Park
-        moveForward(0.75, -24);
+        rotate(0.5, 20);
+        moveForward(0.75, -22);
+
 
 
 
