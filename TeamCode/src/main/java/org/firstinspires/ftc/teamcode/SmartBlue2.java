@@ -116,6 +116,7 @@ public class SmartBlue2 extends LinearOpMode {
 
         /// WAIT FOR SUCCESSFUL COMPUTER VISION RESULT ///
         // Run until opMode starts
+        outer:
         while (opModeIsActive() == false) {
             // Wait 5 seconds to check for result
             runtime.reset();
@@ -123,17 +124,17 @@ public class SmartBlue2 extends LinearOpMode {
                 if (isStopRequested()) {
                     return;
                 }
+                // Check if pipeline was success, if so escape.
+                if (pipeline.getLevel() != -1) {
+                    level = pipeline.getLevel();
+                    telemetry.addData("Pipeline Successful Level", level);
+                    telemetry.addData("Status", "Breaking Loop Successfully");
+                    telemetry.update();
+                    break outer;
+                }
             }
-            // Check if pipeline was success, if so escape.
-            if (pipeline.getLevel() != -1) {
-                level = pipeline.getLevel();
-                telemetry.addData("Pipeline Successful Level", level);
-                telemetry.addData("Status", "Breaking Loop Successfully");
-                telemetry.update();
-                break;
-            }
-            // Tell driver team that no level results yet (QUITE BAD, MOVE ROBOT IF CHANCE GIVEN?)
-            telemetry.addData("Passed 5 Seconds", "No Level Results Yet");
+            // Tell driver team that no successful level results yet (Not optimal, but will still work if it fails)
+            telemetry.addData("Passed 5 Seconds", "No Successful Level Results Yet");
             telemetry.update();
         }
 
@@ -197,7 +198,7 @@ public class SmartBlue2 extends LinearOpMode {
             moveClaws(false, 1000);
             finishedScoring = true;
         }).start();
-        moveForward(0.1,4);
+        moveForward(0.2,4);
         rotate(0.1,-30);
         moveForward(0.1,17);
         finishedDriving1 = true;
@@ -213,8 +214,7 @@ public class SmartBlue2 extends LinearOpMode {
         moveForward(0.3,-8);
         setArm(1, 6,0.25);
         rotate(0.3, 120);
-        moveForward(0.75, 40);
-        moveForward(0.2, 10);
+        moveForward(0.75, 50);
         setArm(1, 3,0);
 
         while(opModeIsActive()){

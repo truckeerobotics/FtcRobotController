@@ -117,6 +117,7 @@ public class SmartRed1 extends LinearOpMode {
 
         /// WAIT FOR SUCCESSFUL COMPUTER VISION RESULT ///
         // Run until opMode starts
+        outer:
         while (opModeIsActive() == false) {
             // Wait 5 seconds to check for result
             runtime.reset();
@@ -124,17 +125,17 @@ public class SmartRed1 extends LinearOpMode {
                 if (isStopRequested()) {
                     return;
                 }
+                // Check if pipeline was success, if so escape.
+                if (pipeline.getLevel() != -1) {
+                    level = pipeline.getLevel();
+                    telemetry.addData("Pipeline Successful Level", level);
+                    telemetry.addData("Status", "Breaking Loop Successfully");
+                    telemetry.update();
+                    break outer;
+                }
             }
-            // Check if pipeline was success, if so escape.
-            if (pipeline.getLevel() != -1) {
-                level = pipeline.getLevel();
-                telemetry.addData("Pipeline Successful Level", level);
-                telemetry.addData("Status", "Breaking Loop Successfully");
-                telemetry.update();
-                break;
-            }
-            // Tell driver team that no level results yet (QUITE BAD, MOVE ROBOT IF CHANCE GIVEN?)
-            telemetry.addData("Passed 5 Seconds", "No Level Results Yet");
+            // Tell driver team that no successful level results yet (Not optimal, but will still work if it fails)
+            telemetry.addData("Passed 5 Seconds", "No Successful Level Results Yet");
             telemetry.update();
         }
 
@@ -476,7 +477,7 @@ class ColorDensityPipelineRED extends OpenCvPipeline
     private final int threshold = 35;
     private final int levelCount = 3;
     private final double thresholdConfirm = 0.7;
-    private int failedDelayDefault = 10;
+    private int failedDelayDefault = 9;
     // Instance Variables
     private Telemetry telemetry;
     private int levelResult = -1;
