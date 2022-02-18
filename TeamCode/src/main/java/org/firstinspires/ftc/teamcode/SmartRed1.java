@@ -119,18 +119,18 @@ public class SmartRed1 extends LinearOpMode {
         // Run until opMode starts
         while (opModeIsActive() == false) {
             // Wait 5 seconds to check for result
-            while (runtime.seconds() < 5) {
-            }
             runtime.reset();
+            while (runtime.seconds() < 5) {
+                if (isStopRequested()) {
+                    return;
+                }
+            }
             // Check if pipeline was success, if so escape.
             if (pipeline.getLevel() != -1) {
                 level = pipeline.getLevel();
                 telemetry.addData("Pipeline Successful Level", level);
                 telemetry.addData("Status", "Breaking Loop Successfully");
                 telemetry.update();
-                if (isStopRequested()) {
-                    return;
-                }
                 break;
             }
             // Tell driver team that no level results yet (QUITE BAD, MOVE ROBOT IF CHANCE GIVEN?)
@@ -145,6 +145,11 @@ public class SmartRed1 extends LinearOpMode {
         // Reset to default claw position
         moveClaws(false, 500);
 
+        while (!opModeIsActive()){
+            if (isStopRequested()) {
+                return;
+            }
+        }
         waitForStart();
 
         /// RUN MOVEMENT STEPS ///
@@ -179,6 +184,7 @@ public class SmartRed1 extends LinearOpMode {
         final double levelHeight = levelHeightSetter; //15.85 top level (level 2)
         final double levelDistance = levelDistanceSetter; //3 top level (level 2)
 
+        finishedScoring = false;
         finishedDriving1 = false;
         new Thread(() -> {
             setArm(1, levelHeight,2);
@@ -200,7 +206,6 @@ public class SmartRed1 extends LinearOpMode {
         while(!finishedScoring && (runtime.seconds() < 11)) {
 
         }
-        finishedScoring = false;
         runtime.reset();
 
         // Move it back and prepare for next step
@@ -462,12 +467,15 @@ public class SmartRed1 extends LinearOpMode {
 class ColorDensityPipelineRED extends OpenCvPipeline
 {
     // Constants
-    private final int threshold = 30;
+    private final int threshold = 35;
     private final int levelCount = 3;
     private final double thresholdConfirm = 0.7;
+    private int failedDelayDefault = 10;
     // Instance Variables
     private Telemetry telemetry;
     private int levelResult = -1;
+
+    private int failedDelayRemaining = 0;
 
 
     public ColorDensityPipelineRED(Telemetry telemetry) {
@@ -482,6 +490,10 @@ class ColorDensityPipelineRED extends OpenCvPipeline
     public Mat processFrame(Mat input)
     {
         if (levelResult != -1) {
+            return input;
+        }
+        if (failedDelayRemaining > 0) {
+            failedDelayRemaining--;
             return input;
         }
 
@@ -520,6 +532,7 @@ class ColorDensityPipelineRED extends OpenCvPipeline
             telemetry.addData("SUCCESSFUL, level result: : ", brightestLevel);
             levelResult = brightestLevel;
         } else {
+            failedDelayRemaining = failedDelayDefault;
             telemetry.addData("FAILED, with sum:", sum);
             telemetry.addData("FAILED, with brightest value of:", brightestValue);
             telemetry.addData("FAILED, brightest level: ", brightestLevel);
