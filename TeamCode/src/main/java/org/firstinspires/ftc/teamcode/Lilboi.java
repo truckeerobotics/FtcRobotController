@@ -178,7 +178,7 @@ public class Lilboi extends LinearOpMode {
                 spin = 0;
             }
 
-            distancePower = gamepad2.left_stick_y / 5;
+            distancePower = gamepad2.left_stick_y / 3;
             heightPower = gamepad2.right_stick_y * -1.1;
 
             // Open intake on push of X on controller 2

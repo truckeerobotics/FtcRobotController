@@ -24,11 +24,11 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 public class SmartRed1 extends LinearOpMode {
 
-    //
-
-
-
     /// CONSTANTS ///
+
+    // Arm Constants
+    private final double armHeightCountsPerInch = 140;
+    private final double armDistanceCountsPerInch = 35;
 
     // Claw constant (s)
     private final double maxClawServo = 0.85;
@@ -51,11 +51,9 @@ public class SmartRed1 extends LinearOpMode {
     /// INSTANCE VARIABLES ///
 
     // Timer
-
     private ElapsedTime runtime = new ElapsedTime();
 
     // Motors and Hardware
-
     DcMotor motorFrontLeft = null;
     DcMotor motorBackLeft = null;
     DcMotor motorFrontRight = null;
@@ -69,6 +67,14 @@ public class SmartRed1 extends LinearOpMode {
     // Computer vision
     private ColorDensityPipelineRED pipeline;
     private int level = 2;
+
+    // Start Encoder Level
+
+    private int heightStartEncoder = -1;
+    private int distanceStartEncoder = -1;
+
+    // Used for multi-threading
+    private static boolean finishedScoring = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -121,12 +127,20 @@ public class SmartRed1 extends LinearOpMode {
                 telemetry.addData("Pipeline Successful Level", level);
                 telemetry.addData("Status", "Breaking Loop Successfully");
                 telemetry.update();
+                if (isStopRequested()) {
+                    return;
+                }
                 break;
             }
             // Tell driver team that no level results yet (QUITE BAD, MOVE ROBOT IF CHANCE GIVEN?)
             telemetry.addData("Passed 5 Seconds", "No Level Results Yet");
             telemetry.update();
         }
+
+        if (isStopRequested()) {
+            return;
+        }
+
         // Reset to default claw position
         moveClaws(false, 500);
 
@@ -134,15 +148,77 @@ public class SmartRed1 extends LinearOpMode {
 
         /// RUN MOVEMENT STEPS ///
 
+        // When it starts set "0" encoder levels
+        heightStartEncoder = motorHeight.getCurrentPosition();
+        distanceStartEncoder = motorDistance.getCurrentPosition();
+        telemetry.addData("Zero Arm Encoder Recorded ", heightStartEncoder + " " + distanceStartEncoder);
+
         // Tell driver team what is going on :D
         telemetry.addData("Started Successfully with Level", level);
+
         telemetry.update();
 
         // Capture placed cube.
         moveClaws(true, 1500);
+        setArm(1, 2,0);
+
 
         // Raise up arm
+        double levelHeightSetter = 15.85; //15.85 top level (level 2)
+        double levelDistanceSetter = 3.5; //3 top level (level 2)
 
+//        if (level == 0) {
+//            levelHeightSetter = 9;
+//            levelDistanceSetter = 2;
+//        } else if (level == 1) {
+//            levelHeightSetter = 3;
+//            levelDistanceSetter = 0.5;
+//        }
+
+        final double levelHeight = levelHeightSetter; //15.85 top level (level 2)
+        final double levelDistance = levelDistanceSetter; //3 top level (level 2)
+
+        new Thread(() -> {
+            setArm(1, levelHeight,2);
+            sleep(250);
+            moveForward(0.2,6);
+            setArm(1, levelHeight,levelDistance);
+            moveClaws(false, 1000);
+            finishedScoring = true;
+        }).start();
+        moveForward(0.2,4);
+        rotate(0.25,-35);
+        moveForward(0.25,16);
+
+        runtime.reset();
+        while(!finishedScoring && (runtime.seconds() < 11)) {
+
+        }
+        finishedScoring = false;
+        runtime.reset();
+
+        // Move it back and prepare for next step
+        setArm(1, levelHeight-2,0.5);
+        moveForward(0.3, -8);
+        setArm(1, 6,0.25);
+        clawLeft.setPosition(0);
+        clawRight.setPosition(0);
+
+        // Go to ducks
+        rotate(0.5, 150);
+        moveForward(0.5, 25);
+        rotate(0.6, 70);
+        strafeLeft(0.6, -15);
+        spinSpinner(3, false);
+
+        // Park
+        moveForward(0.75, -24);
+
+
+
+        while(opModeIsActive()){
+
+        }
         // Return rather than crash out if a stop is requested.
         if (isStopRequested()) {
             return;
@@ -213,10 +289,77 @@ public class SmartRed1 extends LinearOpMode {
         encoderDrive(speed, degrees * -1, degrees * -1, degrees, degrees);
     }
 
-    // WIP, NOT DONE
-    public void raiseArm(double speed, double inches) {
+    public void moveArm(double speed, double inchesVertical, double inchesHorizontal){
+        int encoderCountHeight = (int)(inchesVertical*armHeightCountsPerInch) + motorHeight.getCurrentPosition();;
+        int encoderCountDistance = (int)(inchesHorizontal*armDistanceCountsPerInch) + motorDistance.getCurrentPosition();
 
+        setArmEncoderPosition(speed,encoderCountHeight,encoderCountDistance);
     }
+
+    // Sets arm position relative to the start
+    public void setArm(double speed, double inchesVertical, double inchesHorizontal) {
+        if (heightStartEncoder == -1) {
+            sleep(10);
+            waitForStart();
+            sleep(10);
+            heightStartEncoder = motorHeight.getCurrentPosition();
+        }
+        if (distanceStartEncoder == -1) {
+            sleep(10);
+            waitForStart();
+            sleep(10);
+            distanceStartEncoder = motorDistance.getCurrentPosition();
+        }
+
+        int encoderCountHeight = (int)(inchesVertical*armHeightCountsPerInch) + heightStartEncoder;
+        int encoderCountDistance = (int)(inchesHorizontal*armDistanceCountsPerInch) + distanceStartEncoder;
+        telemetry.addData("Height CURRENT: ", motorHeight.getCurrentPosition());
+        telemetry.addData("Distance CURRENT: ", motorDistance.getCurrentPosition());
+
+        telemetry.addData("Height: ", encoderCountHeight);
+        telemetry.addData("Distance: ", encoderCountDistance);
+        telemetry.update();
+
+        setArmEncoderPosition(speed, encoderCountHeight, encoderCountDistance);
+    }
+
+    // Try to NOT use directly, this is more of a helper function.
+    public void setArmEncoderPosition(double speed, int encoderPositionVertical, int encoderPositionHorizontal) {
+        if (opModeIsActive()) {
+            telemetry.addData("Vertical", encoderPositionVertical);
+            telemetry.addData("Horizontal", encoderPositionHorizontal);
+            telemetry.update();
+
+            motorHeight.setTargetPosition(encoderPositionVertical);
+            motorDistance.setTargetPosition(encoderPositionHorizontal);
+
+            motorHeight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            motorDistance.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            runtime.reset();
+            motorHeight.setPower(Math.abs(speed));
+            motorDistance.setPower(Math.abs(speed)/2);
+
+            while (opModeIsActive()  && (motorHeight.isBusy() || motorDistance.isBusy())) {
+                telemetry.addData("Path1",  "Running to %7d :%7d");
+                telemetry.addData("Path2",  "Running at %7d :%7d", motorHeight.getCurrentPosition(), motorDistance.getCurrentPosition());
+                telemetry.update();
+            }
+
+            motorHeight.setPower(0);
+            motorDistance.setPower(0);
+
+            motorHeight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motorDistance.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            //telemetry.addData("",  );
+            //telemetry.update();
+
+            sleep(100);
+
+        }
+    }
+
 
 
     /// ENCODER API ///
@@ -275,6 +418,18 @@ public class SmartRed1 extends LinearOpMode {
                 telemetry.addData("Path1",  "Running to %7d :%7d");
                 telemetry.addData("Path2",  "Running at %7d :%7d", motorFrontLeft.getCurrentPosition(), motorBackLeft.getCurrentPosition(), motorFrontRight.getCurrentPosition(), motorBackRight.getCurrentPosition());
                 telemetry.update();
+                double distanceInInches = (Math.abs(newFrontLeftTarget - motorFrontLeft.getCurrentPosition() * (1/COUNTS_PER_INCH)));
+                if (distanceInInches < 2) {
+                    distanceInInches = distanceInInches*0.5;
+                    if (distanceInInches < 0.25) {
+                        distanceInInches = 0.1;
+                    }
+                    double newSpeed = Math.abs(speed*(1/distanceInInches));
+                    motorFrontLeft.setPower(newSpeed);
+                    motorBackLeft.setPower(newSpeed);
+                    motorFrontRight.setPower(newSpeed);
+                    motorBackRight.setPower(newSpeed);
+                }
             }
 
             // Stop all motion;
@@ -289,7 +444,8 @@ public class SmartRed1 extends LinearOpMode {
             motorFrontRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motorBackRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            //  sleep(250);   // optional pause after each move
+
+            //sleep(2500);   // optional pause after each move
         }
     }
 }
