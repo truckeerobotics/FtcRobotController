@@ -19,6 +19,10 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 
 @Autonomous(name = "Blue Side #1 - Smart")
 public class SmartBlue1 extends LinearOpMode {
@@ -71,10 +75,6 @@ public class SmartBlue1 extends LinearOpMode {
 
     private int heightStartEncoder = -1;
     private int distanceStartEncoder = -1;
-
-    // Used for multi-threading
-    private static boolean finishedScoring = false;
-    private static boolean finishedDriving1 = false;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -184,30 +184,24 @@ public class SmartBlue1 extends LinearOpMode {
         final double levelHeight = levelHeightSetter; //15.85 top level (level 2)
         final double levelDistance = levelDistanceSetter; //3 top level (level 2)
 
-        finishedScoring = false;
-        finishedDriving1 = false;
-        new Thread(() -> {
-            setArm(1, levelHeight,2);
-            sleep(250);
-            while (!finishedDriving1) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
 
-            }
-            moveForward(0.2,6);
-            setArm(1, levelHeight,levelDistance);
-            moveClaws(false, 1000);
-            finishedScoring = true;
-        }).start();
+        Future armThread1 = executor.submit(() -> {
+            telemetry.addData("Running", "Arm Thread");
+            telemetry.update();
+            setArm(1, levelHeight,2);
+        });
         moveForward(0.2,4);
         strafeLeft(0.125, 10);
         rotate(0.25,25);
         moveForward(0.25,17);
-        finishedDriving1 = true;
-
-        runtime.reset();
-        while(!finishedScoring && (runtime.seconds() < 11)) {
+        while(!armThread1.isDone() && opModeIsActive()) {
 
         }
-        runtime.reset();
+        executor.shutdown();
+        moveForward(0.2,6);
+        setArm(1, levelHeight,levelDistance);
+        moveClaws(false, 1000);
 
         // Move it back and prepare for next step
         setArm(1, levelHeight,0.5);
