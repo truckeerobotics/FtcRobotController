@@ -185,7 +185,7 @@ public class SmartRed2 extends LinearOpMode {
             setArm(1, levelHeight,2);
         });
         moveForward(0.1,4);
-        rotate(0.1,50);
+        rotate(0.1,57);
         moveForward(0.2,17);
         while(!armThread1.isDone() && opModeIsActive()) {
         }

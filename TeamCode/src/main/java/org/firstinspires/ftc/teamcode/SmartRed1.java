@@ -193,7 +193,7 @@ public class SmartRed1 extends LinearOpMode {
             setArm(1, levelHeight,2);
         });
         moveForward(0.2,4);
-        rotate(0.25,-35);
+        rotate(0.25,-33);
         moveForward(0.25,16);
         while(!armThread1.isDone() && opModeIsActive()) {
 
@@ -213,13 +213,13 @@ public class SmartRed1 extends LinearOpMode {
 
         // Go to ducks
         rotate(0.5, 150);
-        moveForward(0.5, 24);
+        moveForward(0.5, 20);
         rotate(0.6, 63);
-        strafeLeft(0.6, -13.4);
+        strafeLeft(0.6, -14.5);
         spinSpinner(3, false);
 
         // Park
-        rotate(0.5, 20);
+        rotate(0.5, 19);
         moveForward(0.75, -22);
 
 

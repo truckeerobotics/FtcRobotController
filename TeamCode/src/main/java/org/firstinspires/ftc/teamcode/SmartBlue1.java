@@ -192,32 +192,32 @@ public class SmartBlue1 extends LinearOpMode {
             setArm(1, levelHeight,2);
         });
         moveForward(0.2,4);
-        strafeLeft(0.125, 10);
+        strafeLeft(0.125, 12);
         rotate(0.25,25);
         moveForward(0.25,17);
         while(!armThread1.isDone() && opModeIsActive()) {
 
         }
         executor.shutdown();
-        moveForward(0.2,6);
+        moveForward(0.2,7);
         setArm(1, levelHeight,levelDistance);
         moveClaws(false, 1000);
 
         // Move it back and prepare for next step
         setArm(1, levelHeight,0.5);
-        moveForward(0.3, -8);
+        moveForward(0.3, -9);
         setArm(1, 6,0.25);
         clawLeft.setPosition(0.1);
         clawRight.setPosition(0.1);
 
         // Go to ducks
         rotate(0.55, -125);
-        moveForward(0.5, 36);
+        moveForward(0.5, 38);
         spinSpinner(3, true);
 
         // Park
         rotate(0.75, 5);
-        strafeLeft(0.75, 17);
+        strafeLeft(0.75, 18);
 
         while(opModeIsActive()){
         }
